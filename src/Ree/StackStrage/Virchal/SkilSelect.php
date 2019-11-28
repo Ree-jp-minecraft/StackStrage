@@ -97,7 +97,7 @@ class SkilSelect
             $this->skil[$slot] = $skilname;
             $item->setCustomName($skil::getName()."\n\n§9消費マナ : ".$skil::getMana());
             $this->instance->getInventory()->setItem($slot, $item);
-            $this->skil[$slot] = $skilname;
+            $this->skil[$slot] = $skil;
         }
         $item = Item::get(Item::SAPLING, 0, 1);
         $item->setCustomName("§aスキルツリー");
