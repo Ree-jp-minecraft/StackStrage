@@ -78,6 +78,7 @@ class main extends PluginBase implements Listener
                             $bool = StackStrage_API::add($p, $item);
                             $this->getScheduler()->scheduleDelayedTask(new UpdatePage($pT), 2);
                             if (!$bool) {
+                                $ev->setCancelled();
                                 $pT->errer("line" . __LINE__ . " StackStrageにアイテムを入れれませんでした", $this);
                             }
                             return;
@@ -126,6 +127,7 @@ class main extends PluginBase implements Listener
                             $bool = GatyaStrage_API::add($p, $item);
                             $this->getScheduler()->scheduleDelayedTask(new UpdatePage($pT), 2);
                             if (!$bool) {
+                                $ev->setCancelled();
                                 $pT->errer("line" . __LINE__ . " GatyaStrageにアイテムを入れれませんでした", $this);
                             }
                             return;
@@ -176,7 +178,7 @@ class main extends PluginBase implements Listener
                         $skillist = $pT->s_chestInstance->getSkil();
                         if (isset($skillist[$slot])) {
                             $skil = $skillist[$slot];
-                            if ($pT->s_skilpoint >= $skil::getSkil) {
+                            if ($pT->s_skilpoint >= $skil::getSkilpoint()) {
                                 $pT->s_skilpoint = $pT->s_skilpoint - $skil::getSkilpoint();
                                 $pT->s_skil[] = $skil::getClassName();
                                 $p->sendMessage($skil::getName() . "を解禁しました");

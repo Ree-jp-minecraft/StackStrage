@@ -44,15 +44,18 @@ class GatyaStrage_API
         {
             return false;
         }
-        if (!$nbt->offsetExists(StackStrage_API::PLAYERNAME))
+        if ($nbt->getInt(Gatya::GATYA) <= 1000)
         {
-            return false;
-        }
-        if ($nbt->getString(StackStrage_API::PLAYERNAME) != $p->getName())
-        {
-            if ($nbt->getString(StackStrage_API::PLAYERNAME) !== "true")
+            if (!$nbt->offsetExists(StackStrage_API::PLAYERNAME))
             {
                 return false;
+            }
+            if ($nbt->getString(StackStrage_API::PLAYERNAME) != $p->getName())
+            {
+                if ($nbt->getString(StackStrage_API::PLAYERNAME) !== "true")
+                {
+                    return false;
+                }
             }
         }
         $data = $nbt->getInt(Gatya::GATYA);

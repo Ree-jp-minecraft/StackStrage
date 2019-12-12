@@ -34,7 +34,7 @@ class SkilSelect
      */
     private $skil;
 
-    public function __construct(PlayerTask $pT)
+    public function __construct(PlayerTask $pT ,bool $bool = true)
     {
         $this->pT = $pT;
         $p = $pT->getPlayer();
@@ -44,7 +44,9 @@ class SkilSelect
         $y = (int)$p->y + 3;
         $z = (int)$p->z;
 
-        ChestGuiManager::CloseInventory($p, $x, $y, $z);
+        if ($bool) {
+            ChestGuiManager::CloseInventory($p, $x, $y, $z);
+        }
 
         $pT->s_gui = [$x, $y, $z];
 

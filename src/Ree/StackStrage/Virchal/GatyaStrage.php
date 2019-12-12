@@ -41,7 +41,7 @@ class GatyaStrage
      */
     private $items;
 
-    public function __construct(PlayerTask $pT)
+    public function __construct(PlayerTask $pT ,bool $bool = true)
     {
         $this->pT = $pT;
         $p = $pT->getPlayer();
@@ -51,7 +51,9 @@ class GatyaStrage
         $y = (int)$p->y + 3;
         $z = (int)$p->z;
 
-        ChestGuiManager::CloseInventory($p, $x, $y, $z);
+        if ($bool) {
+            ChestGuiManager::CloseInventory($p, $x, $y, $z);
+        }
 
         $pT->s_gui = [$x, $y, $z];
 
@@ -87,7 +89,13 @@ class GatyaStrage
         $this->instance = $instance;
         $this->setPage();
 
-        main::getMain()->getScheduler()->scheduleDelayedTask(new ChestTask($p, $instance), 15);
+        if ($bool)
+        {
+            $tick = 13;
+        }else{
+            $tick = 3;
+        }
+        main::getMain()->getScheduler()->scheduleDelayedTask(new ChestTask($p, $instance), $tick);
     }
 
     /**

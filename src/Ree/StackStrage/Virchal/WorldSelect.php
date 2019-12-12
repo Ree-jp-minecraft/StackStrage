@@ -35,7 +35,7 @@ class WorldSelect
      */
     private $skil;
 
-    public function __construct(PlayerTask $pT ,bool $bool = true)
+    public function __construct(PlayerTask $pT, bool $bool = true)
     {
         $this->pT = $pT;
         $p = $pT->getPlayer();
@@ -45,8 +45,7 @@ class WorldSelect
         $y = (int)$p->y + 3;
         $z = (int)$p->z;
 
-        if ($bool)
-        {
+        if ($bool) {
             ChestGuiManager::CloseInventory($p, $x, $y, $z);
         }
 
@@ -68,9 +67,16 @@ class WorldSelect
 
         $instance = new VirchalWorldSelect($block);
         $this->instance = $instance;
-
         $this->setPage();
-        main::getMain()->getScheduler()->scheduleDelayedTask(new ChestTask($p, $instance), 13);
+
+        if ($bool)
+        {
+            $tick = 13;
+        }else{
+            $tick = 3;
+        }
+        main::getMain()->getScheduler()->scheduleDelayedTask(new ChestTask($p, $instance), $tick);
+
     }
 
     private function setPage(): void

@@ -34,7 +34,7 @@ class SkilUnlock
      */
     private $skil = [];
 
-    public function __construct(PlayerTask $pT)
+    public function __construct(PlayerTask $pT ,bool $bool = true)
     {
         $this->pT = $pT;
         $p = $pT->getPlayer();
@@ -44,7 +44,9 @@ class SkilUnlock
         $y = (int)$p->y + 3;
         $z = (int)$p->z;
 
-        ChestGuiManager::CloseInventory($p, $x, $y, $z);
+        if ($bool) {
+            ChestGuiManager::CloseInventory($p, $x, $y, $z);
+        }
 
         $pT->s_gui = [$x, $y, $z];
 
@@ -80,7 +82,13 @@ class SkilUnlock
         $this->instance = $instance;
         $this->setPage();
 
-        main::getMain()->getScheduler()->scheduleDelayedTask(new ChestTask($p, $instance), 13);
+        if ($bool)
+        {
+            $tick = 13;
+        }else{
+            $tick = 3;
+        }
+        main::getMain()->getScheduler()->scheduleDelayedTask(new ChestTask($p, $instance), $tick);
     }
 
     private function setPage(): void
@@ -99,7 +107,7 @@ class SkilUnlock
                 $item->setCustomName($skil::getName()."\n\n\n§aロックされていません");
             } else {
                 $item->setCustomName($skil::getName()."\n\n\n§cロックされています\n§bアンロックに必要なポイント : " . $point);
-                $this->skil[$slot] = $skilname;
+                $this->skil[$slot] = $skil;
             }
             $this->instance->getInventory()->setItem($slot, $item);
         }
