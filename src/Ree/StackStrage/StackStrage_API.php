@@ -111,13 +111,11 @@ class StackStrage_API
         if ($item instanceof Item) {
             if ($item instanceof Durable)
             {
-                $p->getInventory()->addItem($item);
                 return false;
             }
             $tag = $item->getNamedTag();
             if ($tag->offsetExists(self::NOTSTACK))
             {
-                $p->getInventory()->addItem($item);
                 return false;
             }
 
