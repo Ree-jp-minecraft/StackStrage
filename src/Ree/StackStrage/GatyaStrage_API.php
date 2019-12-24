@@ -22,6 +22,10 @@ class GatyaStrage_API
             $item->setCount($item->getMaxStackSize());
         }else{
             $item->setCount($count);
+            if ($data === 7)
+			{
+				$item->setCount(1);
+			}
         }
         $item->setCustomName($item->getCustomName()."\n\n個数 : ".$count);
         $nbt = $item->getNamedTag();
