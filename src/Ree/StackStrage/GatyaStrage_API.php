@@ -24,7 +24,10 @@ class GatyaStrage_API
             $item->setCount($count);
             if ($data === 7)
 			{
-				$item->setCount(1);
+				if ($count > 0)
+				{
+					$item->setCount(1);
+				}
 			}
         }
         $item->setCustomName($item->getCustomName()."\n\n個数 : ".$count);
