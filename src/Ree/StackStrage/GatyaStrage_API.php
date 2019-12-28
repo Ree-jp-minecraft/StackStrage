@@ -51,6 +51,10 @@ class GatyaStrage_API
         {
             return false;
         }
+        if ($item->getDamage() !== 0)
+		{
+			return false;
+		}
         if ($nbt->getInt(Gatya::GATYA) <= 1000)
         {
             if (!$nbt->offsetExists(StackStrage_API::PLAYERNAME))
