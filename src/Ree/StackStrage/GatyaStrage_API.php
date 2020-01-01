@@ -53,7 +53,16 @@ class GatyaStrage_API
         }
         if ($item->getDamage() !== 0)
 		{
-			return false;
+			if ($nbt->getInt(Gatya::GATYA) !== 171)
+			{
+				return false;
+			}else{
+				if ($item->getDamage() !== 245)
+				{
+					return false;
+				}
+			}
+
 		}
         if ($nbt->getInt(Gatya::GATYA) <= 1000)
         {
