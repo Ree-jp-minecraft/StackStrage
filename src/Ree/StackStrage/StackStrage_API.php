@@ -231,7 +231,7 @@ class StackStrage_API
                     $count = count($data[$page]);
                 }
                 $pageitems = $data[$page];
-                $pageitems[$count] =$item;
+                $pageitems[$count] = $item;
                 $data[$page] = $pageitems;
             }
         }
