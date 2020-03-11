@@ -8,6 +8,8 @@ use pocketmine\item\Item;
 
 interface IStackStorageAPI
 {
+	const NOT_STACK = 1;
+
 	/**
 	 * @return IStackStorageAPI
 	 */
