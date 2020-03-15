@@ -66,6 +66,7 @@ class GuiAPI implements IGuiAPI
 		$window = $p->findWindow(VirtualGui::class);
 		if (!$window instanceof VirtualGui) throw new \Exception('gui not found', self::GUI_NOT_FOUND);
 
+		$window->getInventory()->clearAll();
 		$window->close($p);
 //		$p->doCloseInventory();
 	}
