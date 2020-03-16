@@ -9,6 +9,7 @@ use pocketmine\item\Item;
 interface IStackStorageHelper
 {
 	const STORAGE_NOT_FOUND = 1;
+	const ITEM_NOT_FOUND = 2;
 
 	/**
 	 * IStackStorageHelper constructor.
@@ -23,38 +24,44 @@ interface IStackStorageHelper
 
 	/**
 	 * @param string $n
+	 * @return string|null
+	 */
+	public function getXuid(string $n): ?string ;
+
+	/**
+	 * @param string $xuid
 	 * @return bool
 	 */
-	public function isExists(string $n): bool ;
+	public function isExists(string $xuid): bool ;
 
 	/**
-	 * @param string $n
+	 * @param string $xuid
 	 * @return array
 	 */
-	public function getStorage(string $n): array ;
+	public function getStorage(string $xuid): array ;
 
 	/**
-	 * @param string $n
+	 * @param string $xuid
 	 * @param array $items
 	 */
-	public function setStorage(string $n, array $items): void ;
+	public function setStorage(string $xuid, array $items): void ;
 
 	/**
-	 * @param string $n
+	 * @param string $xuid
 	 * @param Item $item
 	 * @return int
 	 */
-	public function getItem(string $n, Item $item): int ;
+	public function getItem(string $xuid, Item $item): int ;
 
 	/**
-	 * @param string $n
+	 * @param string $xuid
 	 * @param Item $item
 	 */
-	public function addItem(string $n, Item $item): void ;
+	public function addItem(string $xuid, Item $item): void ;
 
 	/**
-	 * @param string $n
+	 * @param string $xuid
 	 * @param Item $item
 	 */
-	public function removeItem(string $n, Item $item): void ;
+	public function removeItem(string $xuid, Item $item): void ;
 }
