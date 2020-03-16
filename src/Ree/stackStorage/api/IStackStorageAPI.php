@@ -23,15 +23,49 @@ interface IStackStorageAPI
 
 	/**
 	 * @param string $n
+	 * @return string|null
+	 */
+	public function getXuid(string $n): ?string ;
+
+	/**
+	 * @param string $xuid
 	 * @param Item $item
 	 */
-	public function add(string $n, Item $item): void ;
+	public function add(string $xuid, Item $item): void ;
+
+	/**
+	 * @param string $xuid
+	 * @param Item $item
+	 */
+	public function remove(string $xuid,Item $item): void ;
+
+	/**
+	 * @param string $xuid
+	 * @param Item $item
+	 * @return bool
+	 */
+	public function isExists(string $xuid, Item $item): bool ;
 
 	/**
 	 * @param string $n
 	 * @param Item $item
+	 * @return bool
 	 */
-	public function remove(string $n,Item $item): void ;
+	public function addByName(string $n, Item $item): bool ;
+
+	/**
+	 * @param string $n
+	 * @param Item $item
+	 * @return bool
+	 */
+	public function removeByName(string $n,Item $item): bool ;
+
+	/**
+	 * @param string $n
+	 * @param Item $item
+	 * @return bool
+	 */
+	public function isExistsByName(string $n, Item $item): bool ;
 
 	/**
 	 * @param string $name
