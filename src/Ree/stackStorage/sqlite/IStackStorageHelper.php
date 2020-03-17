@@ -30,6 +30,18 @@ interface IStackStorageHelper
 
 	/**
 	 * @param string $xuid
+	 * @return string|null
+	 */
+	public function getName(string $xuid): ?string ;
+
+	/**
+	 * @param string $xuid
+	 * @param string $name
+	 */
+	public function setName(string $xuid, string $name): void ;
+
+	/**
+	 * @param string $xuid
 	 * @return bool
 	 */
 	public function isExists(string $xuid): bool ;
