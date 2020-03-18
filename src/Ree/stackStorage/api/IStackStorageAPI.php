@@ -42,9 +42,28 @@ interface IStackStorageAPI
 	/**
 	 * @param string $xuid
 	 * @param Item $item
+	 */
+	public function set(string $xuid, Item $item): void ;
+
+	/**
+	 * @param string $xuid
+	 * @param $item
+	 * @return Item
+	 */
+	public function getItem(string $xuid, $item): Item ;
+
+	/**
+	 * @param string $xuid
+	 * @param Item $item
 	 * @return bool
 	 */
-	public function isExists(string $xuid, Item $item): bool ;
+	public function isItemExists(string $xuid, Item $item): bool ;
+
+	/**
+	 * @param string $xuid
+	 * @return array
+	 */
+	public function getAllItem(string $xuid): array ;
 
 	/**
 	 * @param string $n
@@ -63,12 +82,39 @@ interface IStackStorageAPI
 	/**
 	 * @param string $n
 	 * @param Item $item
-	 * @return bool
+	 * @return Item|null
 	 */
-	public function isExistsByName(string $n, Item $item): bool ;
+	public function getItemByName(string $n, Item $item): ?Item ;
 
 	/**
-	 * @param string $name
+	 * @param string $n
+	 * @param Item $item
+	 * @return bool
 	 */
-	public function sendGui(string $name): void ;
+	public function isItemExistsByName(string $n, Item $item): bool ;
+
+	/**
+	 * @return array
+	 */
+	public function getAllStorage(): array ;
+
+	/**
+	 * @param string $n
+	 */
+	public function sendGui(string $n): void;
+
+	/**
+	 * @param string $n
+	 */
+	public function refresh(string $n): void ;
+
+	/**
+	 * @param string $n
+	 */
+	public function backPage(string $n): void ;
+
+	/**
+	 * @param string $n
+	 */
+	public function nextPage(string $n): void ;
 }
