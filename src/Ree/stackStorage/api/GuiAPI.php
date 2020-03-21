@@ -6,7 +6,8 @@ namespace ree\stackStorage\api;
 
 use pocketmine\Player;
 use pocketmine\Server;
-use Ree\StackStrage\virtual\VirtualGui;
+
+use ree\stackStorage\virtual\VirtualGui;
 
 class GuiAPI implements IGuiAPI
 {

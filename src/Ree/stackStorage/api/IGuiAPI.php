@@ -5,7 +5,7 @@ namespace ree\stackStorage\api;
 
 
 use Exception;
-use Ree\StackStrage\virtual\VirtualGui;
+use ree\stackStorage\virtual\VirtualGui;
 
 interface IGuiAPI
 {

@@ -10,6 +10,7 @@ interface IStackStorageHelper
 {
 	const STORAGE_NOT_FOUND = 1;
 	const ITEM_NOT_FOUND = 2;
+	const ENCHANT_ID_NOT_FOUND = 3;
 
 	/**
 	 * IStackStorageHelper constructor.
@@ -61,19 +62,26 @@ interface IStackStorageHelper
 	/**
 	 * @param string $xuid
 	 * @param Item $item
-	 * @return int
+	 * @return Item
 	 */
-	public function getItem(string $xuid, Item $item): int ;
+	public function getItem(string $xuid, Item $item): Item ;
 
 	/**
 	 * @param string $xuid
 	 * @param Item $item
 	 */
-	public function addItem(string $xuid, Item $item): void ;
+	public function setItem(string $xuid, Item $item): void ;
 
 	/**
-	 * @param string $xuid
 	 * @param Item $item
+	 * @param string $enchant
+	 * @return Item
 	 */
-	public function removeItem(string $xuid, Item $item): void ;
+	public function enchantEncode(Item $item, string $enchant) : Item ;
+
+	/**
+	 * @param Item $item
+	 * @return string
+	 */
+	public function enchantDecode(Item $item) : ?string ;
 }

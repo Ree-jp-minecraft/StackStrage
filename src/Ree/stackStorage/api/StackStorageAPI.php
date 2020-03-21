@@ -9,7 +9,7 @@ use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree\stackStorage\sqlite\StackStorageHelper;
-use Ree\StackStrage\gui\StackStorage;
+use ree\stackStorage\gui\StackStorage;
 
 class StackStorageAPI implements IStackStorageAPI
 {
@@ -55,7 +55,7 @@ class StackStorageAPI implements IStackStorageAPI
 		$p = Server::getInstance()->getPlayer($n);
 		if (!$p instanceof Player) return;
 		try {
-			if (!$this->isOpen($n)) GuiAPI::getInstance()->closeGui($n);
+			if ($this->isOpen($n)) GuiAPI::getInstance()->closeGui($n);
 
 			$storage = new StackStorage($p);
 			$storage->sendGui();
@@ -73,9 +73,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function add(string $xuid, Item $item): void
 	{
-		$count = StackStorageHelper::getInstance()->getItem($xuid, $item)->getCount();
-
-		$item->setCount($item->getCount() + $count);
+		$item->setCount($item->getCount() + $this->getItem($xuid, $item)->getCount());
 		StackStorageHelper::getInstance()->setItem($xuid, $item);
 	}
 
@@ -84,7 +82,10 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function remove(string $xuid, Item $item): void
 	{
-		$count = StackStorageHelper::getInstance()->getItem($xuid, $item)->getCount() - $item->getCount();
+		var_dump($item->getCount());
+		$count = $this->getItem($xuid, $item)->getCount() - $item->getCount();
+		var_dump($this->getItem($xuid, $item)->getCount());
+		var_dump($count);
 		if ($count >= 0) {
 			StackStorageHelper::getInstance()->setItem($xuid, $item->setCount($count));
 		}
@@ -95,7 +96,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function getXuid(string $n): ?string
 	{
-		StackStorageHelper::getInstance()->getXuid($n);
+		return StackStorageHelper::getInstance()->getXuid($n);
 	}
 
 	/**
@@ -133,12 +134,12 @@ class StackStorageAPI implements IStackStorageAPI
 	/**
 	 * @inheritDoc
 	 */
-	public function isExistsByName(string $n, Item $item): bool
+	public function isExistsByName(string $n): bool
 	{
 		$xuid = $this->getXuid($n);
 		if (!$xuid) return false;
 
-		return $this->isExists($xuid, $item);
+		return $this->isExists($xuid);
 	}
 
 	/**
