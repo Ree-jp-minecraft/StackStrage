@@ -40,7 +40,7 @@ class StackStoragePlugin extends PluginBase
 	public static function getVersion(): string
 	{
 		if (self::IS_BETA_VERSION) {
-			return 'Version-β' . self::getMain()->getDescription()->getVersion() . ' by-' . implode(self::getMain()->getDescription()->getAuthors(), ',');
+			return 'Version-β' . self::getMain()->getDescription()->getVersion() ."\n\n\n\n\n\n\n\n\n\n\n" . ' by-' . implode(self::getMain()->getDescription()->getAuthors(), ',');
 		} else {
 			return 'Version-' . self::getMain()->getDescription()->getVersion();
 		}
