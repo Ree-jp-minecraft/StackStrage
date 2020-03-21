@@ -1,8 +1,8 @@
-name: StackStrage_core
-main: ree\StackStorage\StackStoragePlugin
+name: StackStorage_core
+main: ree\stackStorage\StackStoragePlugin
 api : 3.0.0
 version: 0.0.1
 author: Ree-jp
 permissions:
   command.stackstorage:
-    default: op
+    default: true
