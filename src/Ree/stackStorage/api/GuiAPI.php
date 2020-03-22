@@ -17,6 +17,11 @@ class GuiAPI implements IGuiAPI
 	private static $instance;
 
 	/**
+	 * @var int[]
+	 */
+	private $ids;
+
+	/**
 	 * @inheritDoc
 	 */
 	public static function getInstance(): IGuiAPI
@@ -35,7 +40,7 @@ class GuiAPI implements IGuiAPI
 		$p = Server::getInstance()->getPlayer($n);
 		if (!$p instanceof Player) throw new \Exception('player not found', self::PLAYER_NOT_FOUND);
 
-		$window = $p->findWindow(VirtualGui::class);
+		$window = $this->findWindow($p);
 		if (!$window instanceof VirtualGui) throw new \Exception('gui not found', self::GUI_NOT_FOUND);
 
 		return $window;
@@ -50,7 +55,7 @@ class GuiAPI implements IGuiAPI
 		if (!$p instanceof Player) throw new \Exception('player not found', self::PLAYER_NOT_FOUND);
 
 		try {
-			$p->addWindow($gui);
+			$this->ids[$n] = $p->addWindow($gui);
 		}catch (\InvalidArgumentException | \InvalidStateException $ex) {
 			throw $ex;
 		}
@@ -64,11 +69,25 @@ class GuiAPI implements IGuiAPI
 		$p = Server::getInstance()->getPlayer($n);
 		if (!$p instanceof Player) throw new \Exception('player not found', self::PLAYER_NOT_FOUND);
 
-		$window = $p->findWindow(VirtualGui::class);
+		$window = $this->findWindow($p);
 		if (!$window instanceof VirtualGui) throw new \Exception('gui not found', self::GUI_NOT_FOUND);
 
 		$window->getInventory()->clearAll();
 		$window->close($p);
 //		$p->doCloseInventory();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function findWindow(Player $p): ?VirtualGui
+	{
+		$n = $p->getName();
+
+		if (isset($this->ids[$n])) {
+			$window = $p->getWindow($this->ids[$n]);
+			if ($window instanceof VirtualGui) return $window;
+		}
+		return null;
 	}
 }

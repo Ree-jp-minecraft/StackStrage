@@ -5,6 +5,7 @@ namespace ree\stackStorage\api;
 
 
 use Exception;
+use pocketmine\Player;
 use ree\stackStorage\virtual\VirtualGui;
 
 interface IGuiAPI
@@ -36,4 +37,10 @@ interface IGuiAPI
 	 * @throws Exception
 	 */
 	public function closeGui(string $n): void ;
+
+	/**
+	 * @param Player $p
+	 * @return VirtualGui
+	 */
+	public function findWindow(Player $p): ?VirtualGui ;
 }
