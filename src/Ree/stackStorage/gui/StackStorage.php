@@ -77,13 +77,10 @@ class StackStorage
 
 		$gui->clearAll();
 
-		$gui->setItem(self::BACK, Item::get(Item::ARROW)->setCustomName('BackPage'));
-		$gui->setItem(self::NEXT, Item::get(Item::ARROW)->setCustomName('NextPage'));
-		$gui->setItem(self::CLOSE, Item::get(Item::BOOK)->setCustomName('ClosePage'));
-
 		$array = StackStorageAPI::getInstance()->getAllItem($this->p->getXuid());
 		$chunk = array_chunk($array, 45);
 		$count = 0;
+
 		if (isset($chunk[$this->page - 1])) {
 			foreach ($chunk[$this->page - 1] as $item) {
 				if (!$item instanceof Item) {
@@ -105,20 +102,36 @@ class StackStorage
 				$this->gui->setItem($count, $item);
 				$count++;
 			}
+		}else{
+			$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+			$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
+			try {
+				GuiAPI::getInstance()->closeGui($this->p->getName());
+			} catch (Exception $ex) {
+				$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+				$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+			}
 		}
+
+		if (isset($chunk[$this->page])) {
+			$gui->setItem(self::NEXT, Item::get(Item::ARROW)->setCustomName('NextPage'));
+		}
+		if (isset($chunk[$this->page - 2])) {
+			$gui->setItem(self::BACK, Item::get(Item::ARROW)->setCustomName('BackPage'));
+		}
+		$gui->setItem(self::CLOSE, Item::get(Item::BOOK)->setCustomName('ClosePage'));
 	}
 
 	public function backPage()
 	{
-		if ($this->page <= 1) return;
-
 		$this->page -= 1;
 		$this->refresh();
 	}
 
 	public function nextPage()
 	{
-
+		$this->page += 1;
+		$this->refresh();
 	}
 
 	/**

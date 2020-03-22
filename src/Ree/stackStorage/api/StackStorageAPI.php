@@ -10,6 +10,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree\stackStorage\sqlite\StackStorageHelper;
 use ree\stackStorage\gui\StackStorage;
+use ree\stackStorage\virtual\VirtualStackStorage;
 
 class StackStorageAPI implements IStackStorageAPI
 {
@@ -40,7 +41,8 @@ class StackStorageAPI implements IStackStorageAPI
 	public function isOpen(string $n): bool
 	{
 		try {
-			GuiAPI::getInstance()->getGui($n);
+			$gui = GuiAPI::getInstance()->getGui($n);
+			if (!$gui instanceof VirtualStackStorage) return false;
 		} catch (\Exception $ex) {
 			if ($ex->getCode() === GuiAPI::PLAYER_NOT_FOUND | GuiAPI::GUI_NOT_FOUND) return false;
 		}
@@ -82,10 +84,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function remove(string $xuid, Item $item): void
 	{
-		var_dump($item->getCount());
 		$count = $this->getItem($xuid, $item)->getCount() - $item->getCount();
-		var_dump($this->getItem($xuid, $item)->getCount());
-		var_dump($count);
 		if ($count >= 0) {
 			StackStorageHelper::getInstance()->setItem($xuid, $item->setCount($count));
 		}
