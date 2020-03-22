@@ -16,7 +16,7 @@ use ree\stackStorage\api\GuiAPI;
 use ree\stackStorage\api\StackStorageAPI;
 use ree\stackStorage\gui\StackStorage;
 use ree\stackStorage\sqlite\StackStorageHelper;
-use Ree\StackStorage\virtual\VirtualStackStorage;
+use ree\stackStorage\virtual\VirtualStackStorage;
 
 class EventListener implements Listener
 {
@@ -122,10 +122,10 @@ class EventListener implements Listener
 
 	private function removeLore(Player $p): void
 	{
-		for ($slot = 0;$slot < $p->getInventory()->getSize(); $slot++) {
-			 if ($p->getInventory()->getItem($slot)->getLore() !== []) {
-				 $p->getInventory()->setItem($slot, $p->getInventory()->getItem($slot)->setLore([]));
-			 }
+		for ($slot = 0; $slot < $p->getInventory()->getSize(); $slot++) {
+			if ($p->getInventory()->getItem($slot)->getLore() !== []) {
+				$p->getInventory()->setItem($slot, $p->getInventory()->getItem($slot)->setLore([]));
+			}
 		}
 	}
 }

@@ -66,7 +66,7 @@ class StackStorageAPI implements IStackStorageAPI
 			$this->storage[$n] = $storage;
 		} catch (Exception $ex) {
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage());
+			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage(). $ex->getFile(). $ex->getLine());
 			return;
 		}
 	}

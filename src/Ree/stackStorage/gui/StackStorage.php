@@ -16,8 +16,8 @@ use pocketmine\tile\Tile;
 use pocketmine\utils\TextFormat;
 use ree\stackStorage\api\GuiAPI;
 use ree\stackStorage\api\StackStorageAPI;
-use Ree\StackStorage\stackStoragePlugin;
-use Ree\StackStorage\virtual\VirtualStackStorage;
+use ree\stackStorage\stackStoragePlugin;
+use ree\stackStorage\virtual\VirtualStackStorage;
 
 
 class StackStorage
@@ -101,14 +101,21 @@ class StackStorage
 				$this->gui->setItem($count, $item);
 				$count++;
 			}
-		}else{
-			$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-			$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
-			try {
-				GuiAPI::getInstance()->closeGui($this->p->getName());
-			} catch (Exception $ex) {
+		} else {
+			if ($this->page !== 1) {
 				$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-				$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+				$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
+				StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
+					new ClosureTask(
+						function (int $tick): void {
+							try {
+								GuiAPI::getInstance()->closeGui($this->p->getName());
+							} catch (Exception $ex) {
+								$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+								$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+							}
+						}
+					), 5);
 			}
 		}
 
