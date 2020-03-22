@@ -3,9 +3,7 @@
 
 namespace Ree\StackStorage;
 
-use pocketmine\item\Item;
 use pocketmine\plugin\PluginBase;
-use ree\stackStorage\api\StackStorageAPI;
 use ree\stackStorage\command\StackStorageCommand;
 use ree\stackStorage\listener\EventListener;
 

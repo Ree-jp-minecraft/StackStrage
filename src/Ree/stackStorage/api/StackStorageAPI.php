@@ -4,6 +4,7 @@
 namespace ree\stackStorage\api;
 
 
+use Exception;
 use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\Server;
@@ -43,7 +44,7 @@ class StackStorageAPI implements IStackStorageAPI
 		try {
 			$gui = GuiAPI::getInstance()->getGui($n);
 			if (!$gui instanceof VirtualStackStorage) return false;
-		} catch (\Exception $ex) {
+		} catch (Exception $ex) {
 			if ($ex->getCode() === GuiAPI::PLAYER_NOT_FOUND | GuiAPI::GUI_NOT_FOUND) return false;
 		}
 		return true;
@@ -63,7 +64,7 @@ class StackStorageAPI implements IStackStorageAPI
 			$storage->sendGui();
 			$storage->refresh();
 			$this->storage[$n] = $storage;
-		} catch (\Exception $ex) {
+		} catch (Exception $ex) {
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage());
 			return;

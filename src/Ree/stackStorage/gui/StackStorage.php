@@ -10,7 +10,6 @@ use pocketmine\level\Level;
 use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
-use pocketmine\Server;
 use pocketmine\tile\Chest;
 
 use pocketmine\tile\Tile;

@@ -125,7 +125,6 @@ class EventListener implements Listener
 		for ($slot = 0;$slot < $p->getInventory()->getSize(); $slot++) {
 			 if ($p->getInventory()->getItem($slot)->getLore() !== []) {
 				 $p->getInventory()->setItem($slot, $p->getInventory()->getItem($slot)->setLore([]));
-				 var_dump($p->getInventory()->getItem($slot)->getVanillaName());
 			 }
 		}
 	}
