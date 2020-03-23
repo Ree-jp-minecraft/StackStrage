@@ -74,6 +74,7 @@ class GuiAPI implements IGuiAPI
 
 		$window->getInventory()->clearAll();
 		$window->close($p);
+		$p->getLevel()->sendBlocks([$p], [$p->getLevel()->getBlock($p->asVector3()->up(2)), $p->getLevel()->getBlock($p->asVector3()->up(2)->west())]);
 //		$p->doCloseInventory();
 	}
 

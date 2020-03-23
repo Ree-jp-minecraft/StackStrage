@@ -3,6 +3,7 @@
 
 namespace ree\stackStorage\listener;
 
+use Exception;
 use pocketmine\event\inventory\InventoryCloseEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
@@ -39,7 +40,7 @@ class EventListener implements Listener
 				$helper->setName($xuid, $n);
 				$p->sendMessage(TextFormat::GREEN . '>> ' . TextFormat::RESET . 'スタックストレージのデータを' . $old . 'から' . $n . 'に移行しました');
 			}
-		} catch (\Exception $ex) {
+		} catch (Exception $ex) {
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
 		}
@@ -51,8 +52,14 @@ class EventListener implements Listener
 		$n = $p->getName();
 
 		try {
-			GuiAPI::getInstance()->closeGui($n);
-		} catch (\Exception $ex) {
+			try {
+				GuiAPI::getInstance()->getGui($n);
+				GuiAPI::getInstance()->closeGui($n);
+			} catch (Exception $ex) {
+				if ($ex->getCode() === GuiAPI::GUI_NOT_FOUND) return;
+				throw $ex;
+			}
+		} catch (Exception $ex) {
 			$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 			$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
 		}
@@ -76,26 +83,28 @@ class EventListener implements Listener
 						$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 						$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
 					}
-					switch ($act->getSlot()) {
-						case StackStorage::BACK:
-							StackStorageAPI::getInstance()->backPage($n);
-							$ev->setCancelled();
-							return;
+					if ($act->getSourceItem()->getId() !== Item::AIR) {
+						switch ($act->getSlot()) {
+							case StackStorage::BACK:
+								StackStorageAPI::getInstance()->backPage($n);
+								$ev->setCancelled();
+								return;
 
-						case StackStorage::NEXT:
-							StackStorageAPI::getInstance()->nextPage($n);
-							$ev->setCancelled();
-							return;
+							case StackStorage::NEXT:
+								StackStorageAPI::getInstance()->nextPage($n);
+								$ev->setCancelled();
+								return;
 
-						case StackStorage::CLOSE:
-							try {
-								GuiAPI::getInstance()->closeGui($n);
-							} catch (\Exception $ex) {
-								$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-								$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
-							}
-							$ev->setCancelled();
-							return;
+							case StackStorage::CLOSE:
+								try {
+									GuiAPI::getInstance()->closeGui($n);
+								} catch (Exception $ex) {
+									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+								}
+								$ev->setCancelled();
+								return;
+						}
 					}
 					if ($act->getTargetItem()->getId() !== Item::AIR) {
 						$item = $act->getTargetItem();
