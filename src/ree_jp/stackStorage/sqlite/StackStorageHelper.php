@@ -1,14 +1,14 @@
 <?php
 
 
-namespace ree\stackStorage\sqlite;
+namespace ree_jp\stackStorage\sqlite;
 
 
 use Exception;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\enchantment\EnchantmentInstance;
 use pocketmine\item\Item;
-use Ree\StackStorage\stackStoragePlugin;
+use ree_jp\StackStorage\stackStoragePlugin;
 use SQLite3;
 
 class StackStorageHelper implements IStackStorageHelper

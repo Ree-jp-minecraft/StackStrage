@@ -1,12 +1,12 @@
 <?php
 
 
-namespace ree\stackStorage\api;
+namespace ree_jp\stackStorage\api;
 
 
 use Exception;
 use pocketmine\Player;
-use ree\stackStorage\virtual\VirtualGui;
+use ree_jp\stackStorage\virtual\VirtualGui;
 
 interface IGuiAPI
 {

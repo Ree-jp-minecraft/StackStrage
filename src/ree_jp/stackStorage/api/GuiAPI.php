@@ -1,13 +1,13 @@
 <?php
 
 
-namespace ree\stackStorage\api;
+namespace ree_jp\stackStorage\api;
 
 
 use pocketmine\Player;
 use pocketmine\Server;
 
-use ree\stackStorage\virtual\VirtualGui;
+use ree_jp\stackStorage\virtual\VirtualGui;
 
 class GuiAPI implements IGuiAPI
 {

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree\stackStorage\api;
+namespace ree_jp\stackStorage\api;
 
 
 use Exception;
@@ -9,9 +9,9 @@ use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
-use ree\stackStorage\sqlite\StackStorageHelper;
-use ree\stackStorage\gui\StackStorage;
-use ree\stackStorage\virtual\VirtualStackStorage;
+use ree_jp\stackStorage\sqlite\StackStorageHelper;
+use ree_jp\stackStorage\gui\StackStorage;
+use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class StackStorageAPI implements IStackStorageAPI
 {
@@ -196,14 +196,6 @@ class StackStorageAPI implements IStackStorageAPI
 		if (!$xuid) return false;
 
 		return $this->isItemExists($xuid, $item);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getAllStorage(): array
-	{
-		// TODO: Implement getAllStorage() method.
 	}
 
 	public function refresh(string $n): void

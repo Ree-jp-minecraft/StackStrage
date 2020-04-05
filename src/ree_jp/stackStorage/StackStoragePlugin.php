@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Ree\StackStorage;
+namespace ree_jp\StackStorage;
 
 use pocketmine\plugin\PluginBase;
-use ree\stackStorage\command\StackStorageCommand;
-use ree\stackStorage\listener\EventListener;
+use ree_jp\stackStorage\command\StackStorageCommand;
+use ree_jp\stackStorage\listener\EventListener;
 
 class StackStoragePlugin extends PluginBase
 {
@@ -18,14 +18,9 @@ class StackStoragePlugin extends PluginBase
 
 	public function onEnable()
 	{
-		$this->getLogger()->info('loading now...');
-		if (self::IS_BETA_VERSION) {
-			$this->getLogger()->warning('This plugin is BETA version');
-		}
 		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
 		$this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand());
-		self::$instance = $this;
-		$this->getLogger()->info('Complete');
+		self::$instance = $this;;
 	}
 
 	public function onDisable()
@@ -38,7 +33,7 @@ class StackStoragePlugin extends PluginBase
 	public static function getVersion(): string
 	{
 		if (self::IS_BETA_VERSION) {
-			return 'Version-β' . self::getMain()->getDescription()->getVersion() ."\n\n\n\n\n\n\n\n\n\n\n" . '   by-' . implode(self::getMain()->getDescription()->getAuthors(), ',');
+			return 'Version-β' . self::getMain()->getDescription()->getVersion();
 		} else {
 			return 'Version-' . self::getMain()->getDescription()->getVersion();
 		}

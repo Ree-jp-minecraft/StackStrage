@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree\stackStorage\listener;
+namespace ree_jp\stackStorage\listener;
 
 use Exception;
 use pocketmine\event\inventory\InventoryCloseEvent;
@@ -13,11 +13,11 @@ use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
-use ree\stackStorage\api\GuiAPI;
-use ree\stackStorage\api\StackStorageAPI;
-use ree\stackStorage\gui\StackStorage;
-use ree\stackStorage\sqlite\StackStorageHelper;
-use ree\stackStorage\virtual\VirtualStackStorage;
+use ree_jp\stackStorage\api\GuiAPI;
+use ree_jp\stackStorage\api\StackStorageAPI;
+use ree_jp\stackStorage\gui\StackStorage;
+use ree_jp\stackStorage\sqlite\StackStorageHelper;
+use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class EventListener implements Listener
 {
