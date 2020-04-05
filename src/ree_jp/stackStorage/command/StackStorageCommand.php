@@ -1,15 +1,14 @@
 <?php
 
 
-namespace ree\stackStorage\command;
+namespace ree_jp\stackStorage\command;
 
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\utils\CommandException;
 use pocketmine\Player;
 use pocketmine\utils\TextFormat;
-use ree\stackStorage\api\StackStorageAPI;
+use ree_jp\stackStorage\api\StackStorageAPI;
 
 class StackStorageCommand extends Command
 {

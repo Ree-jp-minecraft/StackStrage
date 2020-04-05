@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree\stackStorage\api;
+namespace ree_jp\stackStorage\api;
 
 
 use pocketmine\item\Item;
@@ -92,11 +92,6 @@ interface IStackStorageAPI
 	 * @return bool
 	 */
 	public function isItemExistsByName(string $n, Item $item): bool ;
-
-	/**
-	 * @return array
-	 */
-	public function getAllStorage(): array ;
 
 	/**
 	 * @param string $n

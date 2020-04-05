@@ -1,5 +1,5 @@
 name: StackStorage_core
-main: ree\stackStorage\StackStoragePlugin
+main: ree_jp\stackStorage\StackStoragePlugin
 api : 3.0.0
 version: 0.0.4
 author: Ree-jp

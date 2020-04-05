@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree\stackStorage\virtual;
+namespace ree_jp\stackStorage\virtual;
 
 
 class VirtualStackStorage extends VirtualGui

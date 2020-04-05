@@ -1,6 +1,6 @@
 <?php
 
-namespace ree\stackStorage\gui;
+namespace ree_jp\stackStorage\gui;
 
 
 use Exception;
@@ -14,10 +14,10 @@ use pocketmine\tile\Chest;
 
 use pocketmine\tile\Tile;
 use pocketmine\utils\TextFormat;
-use ree\stackStorage\api\GuiAPI;
-use ree\stackStorage\api\StackStorageAPI;
-use ree\stackStorage\stackStoragePlugin;
-use ree\stackStorage\virtual\VirtualStackStorage;
+use ree_jp\stackStorage\api\GuiAPI;
+use ree_jp\stackStorage\api\StackStorageAPI;
+use ree_jp\stackStorage\stackStoragePlugin;
+use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 
 class StackStorage
