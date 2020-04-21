@@ -9,7 +9,7 @@ use ree_jp\stackStorage\listener\EventListener;
 
 class StackStoragePlugin extends PluginBase
 {
-	const IS_BETA_VERSION = true;
+	const IS_BETA_VERSION = false;
 
 	/**
 	 * @var StackStoragePlugin
