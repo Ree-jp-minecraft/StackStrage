@@ -1,8 +1,11 @@
-# StackStorage [![](https://poggit.pmmp.io/shield.state/StackStorage)](https://poggit.pmmp.io/p/StackStorage)
+
+=======
+# StackStrage
 Add simple virtual storage
+[![](https://poggit.pmmp.io/shield.state/StackStorage)](https://poggit.pmmp.io/p/StackStorage)
 
 # How to use
-You can open the storage at `/stackstorage` or `/st`
+You can open the storage at / stackstorage or / st
 
 # Feature
 Use the familiar chest gui that opens the most while playing with Minecraft to get items in and out infinitely
@@ -18,5 +21,5 @@ The description field will be automatically deleted when the player puts it in t
 Permission to open storage by command  
 Default can be used by anyone
 
-# API
-http://mcbereef.ddo.jp/wordpress/?p=65
+# Download
+https://poggit.pmmp.io/p/StackStorage
