@@ -15,7 +15,7 @@ class StackStorageCommand extends Command
 	public function __construct()
 	{
 		parent::__construct('stackstorage', 'StackStorage Command', '/stackstorage', ['st']);
-		$this->setPermission("command.stackstorage");
+		$this->setPermission("stackstorage.command");
 		$this->setPermissionMessage('§cSet permissions from \'plugin.yml\' to \'true\' to allow use without permissions');
 	}
 
