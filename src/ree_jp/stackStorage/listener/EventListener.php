@@ -33,12 +33,10 @@ class EventListener implements Listener
 			if (!$api->isExists($xuid)) {
 				$helper->setStorage($xuid, []);
 				$helper->setName($xuid, $n);
-				$p->sendMessage(TextFormat::GREEN . '>> ' . TextFormat::RESET . 'スタックストレージのデータを作成しました');
 			}
 			$old = $helper->getName($xuid);
 			if ($old == !$n) {
 				$helper->setName($xuid, $n);
-				$p->sendMessage(TextFormat::GREEN . '>> ' . TextFormat::RESET . 'スタックストレージのデータを' . $old . 'から' . $n . 'に移行しました');
 			}
 		} catch (Exception $ex) {
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
