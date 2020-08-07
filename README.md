@@ -1,11 +1,12 @@
-
-=======
-# StackStrage
+# StackStrage [![](https://poggit.pmmp.io/shield.dl.total/StackStorage)](https://poggit.pmmp.io/p/StackStorage)
 Add simple virtual storage
-[![](https://poggit.pmmp.io/shield.state/StackStorage)](https://poggit.pmmp.io/p/StackStorage)
 
 # How to use
 You can open the storage at / stackstorage or / st
+
+# Admin
+/stackstorage [userName]  
+*You can only open it if the player is on the server
 
 # Feature
 Use the familiar chest gui that opens the most while playing with Minecraft to get items in and out infinitely
@@ -17,9 +18,13 @@ The description field will be automatically deleted when the player puts it in t
 ![image2](image/image2.png)
 
 # Permission
-`stackstorage.command`  
-Permission to open storage by command  
+`stackstorage.command.my`  
+Permission to open my storage by command  
 Default can be used by anyone
+
+`stackstorage.command.user`  
+Permission to open all user storage by command  
+Default can be used by op
 
 # Download
 https://poggit.pmmp.io/p/StackStorage
