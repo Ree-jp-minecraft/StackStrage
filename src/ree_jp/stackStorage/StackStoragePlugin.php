@@ -19,7 +19,7 @@ class StackStoragePlugin extends PluginBase
 	public function onEnable()
 	{
 		$this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
-		$this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand());
+		$this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand($this));
 		self::$instance = $this;;
 	}
 

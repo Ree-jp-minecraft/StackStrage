@@ -93,15 +93,18 @@ class EventListener implements Listener
 								$ev->setCancelled();
 								return;
 
-							case StackStorage::CLOSE:
-								try {
-									GuiAPI::getInstance()->closeGui($n);
-								} catch (Exception $ex) {
-									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
-								}
-								$ev->setCancelled();
-								return;
+//							crash problem
+//							https://github.com/Ree-jp-minecraft/StackStrage/issues/8
+//
+//							case StackStorage::CLOSE:
+//								try {
+//									GuiAPI::getInstance()->closeGui($n);
+//								} catch (Exception $ex) {
+//									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+//									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+//								}
+//								$ev->setCancelled();
+//								return;
 						}
 					}
 					if ($act->getTargetItem()->getId() !== Item::AIR) {

@@ -125,7 +125,7 @@ class StackStorage
 		if (isset($chunk[$this->page - 2])) {
 			$gui->setItem(self::BACK, Item::get(Item::ARROW)->setCustomName('BackPage'));
 		}
-		$gui->setItem(self::CLOSE, Item::get(Item::BOOK)->setCustomName('ClosePage'));
+//		$gui->setItem(self::CLOSE, Item::get(Item::BOOK)->setCustomName('ClosePage'));
 	}
 
 	public function backPage()
