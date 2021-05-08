@@ -4,6 +4,7 @@
 namespace ree_jp\stackStorage\sqlite;
 
 
+use DaPigGuy\PiggyCustomEnchants\CustomEnchantManager;
 use Exception;
 use pocketmine\item\enchantment\Enchantment;
 use pocketmine\item\enchantment\EnchantmentInstance;
@@ -210,7 +211,14 @@ class StackStorageHelper implements IStackStorageHelper
 			if ($enchant) {
 				$item->addEnchantment(new EnchantmentInstance($enchant, $level));
 			} else {
-				throw new Exception('enchant not found', self::ENCHANT_ID_NOT_FOUND);
+                try {
+                    $customEnchant = CustomEnchantManager::getEnchantment($id);
+                    if ($customEnchant) {
+                        $item->addEnchantment(new EnchantmentInstance($customEnchant, $level));
+                    }else throw new Exception();
+                }catch (Exception $ex) {
+                    throw new Exception('enchant not found', self::ENCHANT_ID_NOT_FOUND);
+                }
 			}
 		}
 		return $item;
