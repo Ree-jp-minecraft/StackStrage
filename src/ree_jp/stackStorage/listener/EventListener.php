@@ -14,6 +14,7 @@ use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
+use ree_jp\stackStorage\api\IGuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\gui\StackStorage;
 use ree_jp\stackStorage\sqlite\StackStorageHelper;
@@ -26,17 +27,12 @@ class EventListener implements Listener
 		$p = $ev->getPlayer();
 		$n = $p->getName();
 		$xuid = $p->getXuid();
-		$helper = StackStorageHelper::getInstance();
-		$api = StackStorageAPI::getInstance();
+		$helper = StackStorageHelper::$instance;
+		$api = StackStorageAPI::$instance;
 
 		try {
 			if (!$api->isExists($xuid)) {
 				$helper->setStorage($xuid, []);
-				$helper->setName($xuid, $n);
-			}
-			$old = $helper->getName($xuid);
-			if ($old == !$n) {
-				$helper->setName($xuid, $n);
 			}
 		} catch (Exception $ex) {
 			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
@@ -54,7 +50,7 @@ class EventListener implements Listener
 				GuiAPI::getInstance()->getGui($n);
 				GuiAPI::getInstance()->closeGui($n);
 			} catch (Exception $ex) {
-				if ($ex->getCode() === GuiAPI::GUI_NOT_FOUND) return;
+				if ($ex->getCode() === IGuiAPI::GUI_NOT_FOUND) return;
 				throw $ex;
 			}
 		} catch (Exception $ex) {
@@ -76,7 +72,7 @@ class EventListener implements Listener
 			if ($ev->isCancelled()) return;
 			if ($act instanceof SlotChangeAction) {
 				if ($act->getInventory() instanceof VirtualStackStorage) {
-					if (!StackStorageAPI::getInstance()->isOpen($n)) {
+					if (!StackStorageAPI::$instance->isOpen($n)) {
 						$ev->setCancelled();
 						$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 						$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
@@ -84,12 +80,12 @@ class EventListener implements Listener
 					if ($act->getSourceItem()->getId() !== Item::AIR) {
 						switch ($act->getSlot()) {
 							case StackStorage::BACK:
-								StackStorageAPI::getInstance()->backPage($n);
+								StackStorageAPI::$instance->backPage($n);
 								$ev->setCancelled();
 								return;
 
 							case StackStorage::NEXT:
-								StackStorageAPI::getInstance()->nextPage($n);
+								StackStorageAPI::$instance->nextPage($n);
 								$ev->setCancelled();
 								return;
 
@@ -109,19 +105,19 @@ class EventListener implements Listener
 					}
 					if ($act->getTargetItem()->getId() !== Item::AIR) {
 						$item = $act->getTargetItem();
-						StackStorageAPI::getInstance()->add($xuid, $item);
-						StackStorageAPI::getInstance()->refresh($n);
+						StackStorageAPI::$instance->add($xuid, $item);
+						StackStorageAPI::$instance->refresh($n);
 					}
 					if ($act->getSourceItem()->getId() !== Item::AIR and $act->getSlot() < 45) {
 						$item = $act->getSourceItem();
-						if (StackStorageAPI::getInstance()->getItem($xuid, $item)->getCount() < $item->getCount()) {
+						if (StackStorageAPI::$instance->getItem($xuid, $item)->getCount() < $item->getCount()) {
 							$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 							$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : could not reduce items');
 							$ev->setCancelled();
 							return;
 						}
-						StackStorageAPI::getInstance()->remove($xuid, $item);
-						StackStorageAPI::getInstance()->refresh($n);
+						StackStorageAPI::$instance->remove($xuid, $item);
+						StackStorageAPI::$instance->refresh($n);
 					}
 				}
 

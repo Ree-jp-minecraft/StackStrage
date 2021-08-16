@@ -5,6 +5,7 @@ namespace ree_jp\stackStorage\gui;
 
 use Exception;
 use pocketmine\block\Block;
+use pocketmine\block\BlockIds;
 use pocketmine\item\Item;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
@@ -55,8 +56,8 @@ class StackStorage
 			$p = $this->p;
 			$v = $this->p->up(2);
 			$gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $v, $this->p->getLevel());
-			$p->getLevel()->sendBlocks([$p], [Block::get(Block::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
-			$p->getLevel()->sendBlocks([$p], [Block::get(Block::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
+			$p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
+			$p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
 			$this->gui = $gui;
 			StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
 				new ClosureTask(
@@ -76,7 +77,7 @@ class StackStorage
 
 		$gui->clearAll();
 
-		$array = StackStorageAPI::getInstance()->getAllItem($this->p->getXuid());
+		$array = StackStorageAPI::$instance->getAllItem($this->p->getXuid());
 		$chunk = array_chunk($array, 45);
 		$count = 0;
 

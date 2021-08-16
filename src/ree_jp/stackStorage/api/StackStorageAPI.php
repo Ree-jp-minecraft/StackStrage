@@ -15,27 +15,13 @@ use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class StackStorageAPI implements IStackStorageAPI
 {
-	/**
-	 * @var StackStorageAPI
-	 */
-	private static $instance;
+	static StackStorageAPI $instance;
 
 	/**
 	 * @var StackStorage[]
 	 */
-	private $storage;
-
-	/**
-	 * @inheritDoc
-	 */
-	public static function getInstance(): IStackStorageAPI
-	{
-		if (!self::$instance instanceof StackStorageAPI) {
-			self::$instance = new StackStorageAPI();
-		}
-		return self::$instance;
-	}
-
+	private array $storage;
+	
 	/**
 	 * @inheritDoc
 	 */
@@ -45,7 +31,7 @@ class StackStorageAPI implements IStackStorageAPI
 			$gui = GuiAPI::getInstance()->getGui($n);
 			if (!$gui instanceof VirtualStackStorage) return false;
 		} catch (Exception $ex) {
-			if ($ex->getCode() === GuiAPI::PLAYER_NOT_FOUND | GuiAPI::GUI_NOT_FOUND) return false;
+			if ($ex->getCode() === IGuiAPI::PLAYER_NOT_FOUND | IGuiAPI::GUI_NOT_FOUND) return false;
 		}
 		return true;
 	}
@@ -77,7 +63,7 @@ class StackStorageAPI implements IStackStorageAPI
 	public function add(string $xuid, Item $item): void
 	{
 		$item->setCount($item->getCount() + $this->getItem($xuid, $item)->getCount());
-		StackStorageHelper::getInstance()->setItem($xuid, $item);
+		StackStorageHelper::$instance->setItem($xuid, $item);
 	}
 
 	/**
@@ -87,7 +73,7 @@ class StackStorageAPI implements IStackStorageAPI
 	{
 		$count = $this->getItem($xuid, $item)->getCount() - $item->getCount();
 		if ($count >= 0) {
-			StackStorageHelper::getInstance()->setItem($xuid, $item->setCount($count));
+			StackStorageHelper::$instance->setItem($xuid, $item->setCount($count));
 		}
 	}
 
@@ -96,7 +82,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function getXuid(string $n): ?string
 	{
-		return StackStorageHelper::getInstance()->getXuid($n);
+		return StackStorageHelper::$instance->getXuid($n);
 	}
 
 	/**
@@ -104,7 +90,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function isExists(string $xuid): bool
 	{
-		return StackStorageHelper::getInstance()->isExists($xuid);
+		return StackStorageHelper::$instance->isExists($xuid);
 	}
 
 	/**
@@ -147,7 +133,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function set(string $xuid, Item $item): void
 	{
-		StackStorageHelper::getInstance()->getItem($xuid, $item);
+		StackStorageHelper::$instance->getItem($xuid, $item);
 	}
 
 	/**
@@ -155,7 +141,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function getItem(string $xuid, $item): Item
 	{
-		return StackStorageHelper::getInstance()->getItem($xuid, $item);
+		return StackStorageHelper::$instance->getItem($xuid, $item);
 	}
 
 	/**
@@ -163,7 +149,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function isItemExists(string $xuid, Item $item): bool
 	{
-		$count = StackStorageHelper::getInstance()->getItem($xuid, $item)->getCount();
+		$count = StackStorageHelper::$instance->getItem($xuid, $item)->getCount();
 		if ($count <= 0) return false;
 		return true;
 	}
@@ -173,7 +159,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 */
 	public function getAllItem(string $xuid): array
 	{
-		return StackStorageHelper::getInstance()->getStorage($xuid);
+		return StackStorageHelper::$instance->getStorage($xuid);
 	}
 
 	/**

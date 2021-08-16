@@ -14,12 +14,12 @@ class GuiAPI implements IGuiAPI
 	/**
 	 * @var GuiAPI
 	 */
-	private static $instance;
+	private static GuiAPI $instance;
 
 	/**
 	 * @var int[]
 	 */
-	private $ids;
+	private array $ids;
 
 	/**
 	 * @inheritDoc
@@ -54,12 +54,8 @@ class GuiAPI implements IGuiAPI
 		$p = Server::getInstance()->getPlayer($n);
 		if (!$p instanceof Player) throw new \Exception('player not found', self::PLAYER_NOT_FOUND);
 
-		try {
-			$this->ids[$n] = $p->addWindow($gui);
-		}catch (\InvalidArgumentException | \InvalidStateException $ex) {
-			throw $ex;
-		}
-	}
+        $this->ids[$n] = $p->addWindow($gui);
+    }
 
 	/**
 	 * @inheritDoc

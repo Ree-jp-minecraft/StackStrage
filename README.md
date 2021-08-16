@@ -1,5 +1,6 @@
 # StackStrage [![](https://poggit.pmmp.io/shield.dl.total/StackStorage)](https://poggit.pmmp.io/p/StackStorage)
-Add simple virtual storage
+Add simple virtual storage  
+Mysql Version
 
 # How to use
 You can open the storage at / stackstorage or / st

@@ -39,9 +39,9 @@ class StackStorageCommand extends PluginCommand
 				$sender->sendMessage("$args[0] not login");
 				return;
 			}
-			StackStorageAPI::getInstance()->sendGui($args[0]);
+			StackStorageAPI::$instance->sendGui($args[0]);
 		}else{
-			StackStorageAPI::getInstance()->sendGui($sender->getName());
+			StackStorageAPI::$instance->sendGui($sender->getName());
 		}
 	}
 }
