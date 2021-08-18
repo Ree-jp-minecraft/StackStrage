@@ -16,6 +16,7 @@ class StackStorageHelper implements IStackStorageHelper
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
     public function __construct(string $database, string $host, string $db, string $user, string $pass)
     {
@@ -31,6 +32,9 @@ class StackStorageHelper implements IStackStorageHelper
             case 'sqlite':
                 $this->db = new PDO('sqlite:StackStorage.db', null, null, $options);
                 break;
+
+            default:
+                throw new Exception($database . ' is not support');
         }
     }
 
