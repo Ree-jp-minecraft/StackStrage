@@ -21,7 +21,7 @@ class StackStorageAPI implements IStackStorageAPI
 	 * @var StackStorage[]
 	 */
 	private array $storage;
-	
+
 	/**
 	 * @inheritDoc
 	 */
@@ -80,52 +80,9 @@ class StackStorageAPI implements IStackStorageAPI
 	/**
 	 * @inheritDoc
 	 */
-	public function getXuid(string $n): ?string
-	{
-		return StackStorageHelper::$instance->getXuid($n);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
 	public function isExists(string $xuid): bool
 	{
 		return StackStorageHelper::$instance->isExists($xuid);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function addByName(string $n, Item $item): bool
-	{
-		$xuid = $this->getXuid($n);
-		if (!$xuid) return false;
-
-		$this->add($xuid, $item);
-		return true;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function removeByName(string $n, Item $item): bool
-	{
-		$xuid = $this->getXuid($n);
-		if (!$xuid) return false;
-
-		$this->remove($xuid, $item);
-		return true;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function isExistsByName(string $n): bool
-	{
-		$xuid = $this->getXuid($n);
-		if (!$xuid) return false;
-
-		return $this->isExists($xuid);
 	}
 
 	/**
@@ -160,28 +117,6 @@ class StackStorageAPI implements IStackStorageAPI
 	public function getAllItem(string $xuid): array
 	{
 		return StackStorageHelper::$instance->getStorage($xuid);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getItemByName(string $n, Item $item): ?Item
-	{
-		$xuid = $this->getXuid($n);
-		if (!$xuid) return null;
-
-		return $this->getItem($xuid, $item);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function isItemExistsByName(string $n, Item $item): bool
-	{
-		$xuid = $this->getXuid($n);
-		if (!$xuid) return false;
-
-		return $this->isItemExists($xuid, $item);
 	}
 
 	public function refresh(string $n): void

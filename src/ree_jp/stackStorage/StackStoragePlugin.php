@@ -22,7 +22,7 @@ class StackStoragePlugin extends PluginBase
         $this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand($this));
         self::$instance = $this;;
         StackStorageAPI::$instance = new StackStorageAPI();
-        StackStorageHelper::$instance = new StackStorageHelper($this->getConfig()->get('host'), 'stackstorage', $this->getConfig()->get('pass'));
+        StackStorageHelper::$instance = new StackStorageHelper($this->getConfig()->get('host'), 'StackStorage', $this->getConfig()->get('pass'));
     }
 
     public function onDisable()

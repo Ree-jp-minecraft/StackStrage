@@ -4,6 +4,7 @@
 namespace ree_jp\stackStorage\listener;
 
 use Exception;
+use pocketmine\block\BlockIds;
 use pocketmine\event\inventory\InventoryCloseEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
@@ -22,72 +23,62 @@ use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class EventListener implements Listener
 {
-	public function onLogin(PlayerLoginEvent $ev)
-	{
-		$p = $ev->getPlayer();
-		$n = $p->getName();
-		$xuid = $p->getXuid();
-		$helper = StackStorageHelper::$instance;
-		$api = StackStorageAPI::$instance;
+    public function onLogin(PlayerLoginEvent $ev)
+    {
+        $p = $ev->getPlayer();
 
-		try {
-			if (!$api->isExists($xuid)) {
-				$helper->setStorage($xuid, []);
-			}
-		} catch (Exception $ex) {
-			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-			Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
-		}
-	}
+        try {
+            StackStorageHelper::$instance->setTable($p->getXuid());
+        } catch (Exception $ex) {
+            Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+            Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+        }
+    }
 
-	public function onClose(InventoryCloseEvent $ev)
-	{
-		$p = $ev->getPlayer();
-		$n = $p->getName();
+    public function onClose(InventoryCloseEvent $ev)
+    {
+        $p = $ev->getPlayer();
+        $n = $p->getName();
 
-		try {
-			try {
-				GuiAPI::getInstance()->getGui($n);
-				GuiAPI::getInstance()->closeGui($n);
-			} catch (Exception $ex) {
-				if ($ex->getCode() === IGuiAPI::GUI_NOT_FOUND) return;
-				throw $ex;
-			}
-		} catch (Exception $ex) {
-			$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-			$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
-		}
+        try {
+            GuiAPI::getInstance()->getGui($n);
+            GuiAPI::getInstance()->closeGui($n);
+        } catch (Exception $ex) {
+            if ($ex->getCode() === IGuiAPI::GUI_NOT_FOUND) return;
+            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+        }
 
-		$this->removeLore($p);
-	}
+        $this->removeLore($p);
+    }
 
-	public function onChange(InventoryTransactionEvent $ev)
-	{
-		$tr = $ev->getTransaction();
-		$p = $tr->getSource();
-		$n = $p->getName();
-		$xuid = $p->getXuid();
+    public function onChange(InventoryTransactionEvent $ev)
+    {
+        $tr = $ev->getTransaction();
+        $p = $tr->getSource();
+        $n = $p->getName();
+        $xuid = $p->getXuid();
 
-		foreach ($tr->getActions() as $act) {
-			if ($ev->isCancelled()) return;
-			if ($act instanceof SlotChangeAction) {
-				if ($act->getInventory() instanceof VirtualStackStorage) {
-					if (!StackStorageAPI::$instance->isOpen($n)) {
-						$ev->setCancelled();
-						$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-						$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
-					}
-					if ($act->getSourceItem()->getId() !== Item::AIR) {
-						switch ($act->getSlot()) {
-							case StackStorage::BACK:
-								StackStorageAPI::$instance->backPage($n);
-								$ev->setCancelled();
-								return;
+        foreach ($tr->getActions() as $act) {
+            if ($ev->isCancelled()) return;
+            if ($act instanceof SlotChangeAction) {
+                if ($act->getInventory() instanceof VirtualStackStorage) {
+                    if (!StackStorageAPI::$instance->isOpen($n)) {
+                        $ev->setCancelled();
+                        $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                        $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : access to unauthorized storage');
+                    }
+                    if ($act->getSourceItem()->getId() !== BlockIds::AIR) {
+                        switch ($act->getSlot()) {
+                            case StackStorage::BACK:
+                                StackStorageAPI::$instance->backPage($n);
+                                $ev->setCancelled();
+                                return;
 
-							case StackStorage::NEXT:
-								StackStorageAPI::$instance->nextPage($n);
-								$ev->setCancelled();
-								return;
+                            case StackStorage::NEXT:
+                                StackStorageAPI::$instance->nextPage($n);
+                                $ev->setCancelled();
+                                return;
 
 //							crash problem
 //							https://github.com/Ree-jp-minecraft/StackStrage/issues/8
@@ -101,37 +92,37 @@ class EventListener implements Listener
 //								}
 //								$ev->setCancelled();
 //								return;
-						}
-					}
-					if ($act->getTargetItem()->getId() !== Item::AIR) {
-						$item = $act->getTargetItem();
-						StackStorageAPI::$instance->add($xuid, $item);
-						StackStorageAPI::$instance->refresh($n);
-					}
-					if ($act->getSourceItem()->getId() !== Item::AIR and $act->getSlot() < 45) {
-						$item = $act->getSourceItem();
-						if (StackStorageAPI::$instance->getItem($xuid, $item)->getCount() < $item->getCount()) {
-							$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-							$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : could not reduce items');
-							$ev->setCancelled();
-							return;
-						}
-						StackStorageAPI::$instance->remove($xuid, $item);
-						StackStorageAPI::$instance->refresh($n);
-					}
-				}
+                        }
+                    }
+                    if ($act->getTargetItem()->getId() !== BlockIds::AIR) {
+                        $item = $act->getTargetItem();
+                        StackStorageAPI::$instance->add($xuid, $item);
+                        StackStorageAPI::$instance->refresh($n);
+                    }
+                    if ($act->getSourceItem()->getId() !== BlockIds::AIR and $act->getSlot() < 45) {
+                        $item = $act->getSourceItem();
+                        if (StackStorageAPI::$instance->getItem($xuid, $item)->getCount() < $item->getCount()) {
+                            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : could not reduce items');
+                            $ev->setCancelled();
+                            return;
+                        }
+                        StackStorageAPI::$instance->remove($xuid, $item);
+                        StackStorageAPI::$instance->refresh($n);
+                    }
+                }
 
-			}
-		}
-		$this->removeLore($p);
-	}
+            }
+        }
+        $this->removeLore($p);
+    }
 
-	private function removeLore(Player $p): void
-	{
-		for ($slot = 0; $slot < $p->getInventory()->getSize(); $slot++) {
-			if ($p->getInventory()->getItem($slot)->getLore() !== []) {
-				$p->getInventory()->setItem($slot, $p->getInventory()->getItem($slot)->setLore([]));
-			}
-		}
-	}
+    private function removeLore(Player $p): void
+    {
+        for ($slot = 0; $slot < $p->getInventory()->getSize(); $slot++) {
+            if ($p->getInventory()->getItem($slot)->getLore() !== []) {
+                $p->getInventory()->setItem($slot, $p->getInventory()->getItem($slot)->setLore([]));
+            }
+        }
+    }
 }

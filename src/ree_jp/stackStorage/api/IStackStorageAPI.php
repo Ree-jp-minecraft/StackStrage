@@ -16,13 +16,11 @@ interface IStackStorageAPI
      */
     public function isOpen(string $n): bool;
 
-    public function isExists(string $xuid): bool;
-
     /**
-     * @param string $n
-     * @return string|null
+     * @param string $xuid
+     * @return bool
      */
-    public function getXuid(string $n): ?string;
+    public function isExists(string $xuid): bool;
 
     /**
      * @param string $xuid
@@ -61,34 +59,6 @@ interface IStackStorageAPI
      * @return array
      */
     public function getAllItem(string $xuid): array;
-
-    /**
-     * @param string $n
-     * @param Item $item
-     * @return bool
-     */
-    public function addByName(string $n, Item $item): bool;
-
-    /**
-     * @param string $n
-     * @param Item $item
-     * @return bool
-     */
-    public function removeByName(string $n, Item $item): bool;
-
-    /**
-     * @param string $n
-     * @param Item $item
-     * @return Item|null
-     */
-    public function getItemByName(string $n, Item $item): ?Item;
-
-    /**
-     * @param string $n
-     * @param Item $item
-     * @return bool
-     */
-    public function isItemExistsByName(string $n, Item $item): bool;
 
     /**
      * @param string $n

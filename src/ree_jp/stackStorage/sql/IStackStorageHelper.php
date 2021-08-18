@@ -21,24 +21,6 @@ interface IStackStorageHelper
     public function __construct(string $host, string $user, string $pass);
 
     /**
-     * @param string $n
-     * @return string|null
-     */
-    public function getXuid(string $n): ?string;
-
-    /**
-     * @param string $xuid
-     * @return string|null
-     */
-    public function getName(string $xuid): ?string;
-
-    /**
-     * @param string $xuid
-     * @param string $name
-     */
-    public function setName(string $xuid, string $name): void;
-
-    /**
      * @param string $xuid
      * @return bool
      */
@@ -68,17 +50,4 @@ interface IStackStorageHelper
      * @param Item $item
      */
     public function setItem(string $xuid, Item $item): void;
-
-    /**
-     * @param Item $item
-     * @param string $enchant
-     * @return Item
-     */
-    public function enchantEncode(Item $item, string $enchant): Item;
-
-    /**
-     * @param Item $item
-     * @return string
-     */
-    public function enchantDecode(Item $item): ?string;
 }
