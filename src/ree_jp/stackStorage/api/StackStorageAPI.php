@@ -9,8 +9,8 @@ use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
-use ree_jp\stackStorage\sqlite\StackStorageHelper;
 use ree_jp\stackStorage\gui\StackStorage;
+use ree_jp\stackStorage\sql\StackStorageHelper;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class StackStorageAPI implements IStackStorageAPI
@@ -75,14 +75,6 @@ class StackStorageAPI implements IStackStorageAPI
 		if ($count >= 0) {
 			StackStorageHelper::$instance->setItem($xuid, $item->setCount($count));
 		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function isExists(string $xuid): bool
-	{
-		return StackStorageHelper::$instance->isExists($xuid);
 	}
 
 	/**

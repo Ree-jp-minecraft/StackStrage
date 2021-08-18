@@ -4,6 +4,7 @@
 namespace ree_jp\stackStorage\api;
 
 
+use Exception;
 use pocketmine\item\Item;
 
 interface IStackStorageAPI
@@ -18,25 +19,22 @@ interface IStackStorageAPI
 
     /**
      * @param string $xuid
-     * @return bool
-     */
-    public function isExists(string $xuid): bool;
-
-    /**
-     * @param string $xuid
      * @param Item $item
+     * @throws Exception
      */
     public function add(string $xuid, Item $item): void;
 
     /**
      * @param string $xuid
      * @param Item $item
+     * @throws Exception
      */
     public function remove(string $xuid, Item $item): void;
 
     /**
      * @param string $xuid
      * @param Item $item
+     * @throws Exception
      */
     public function set(string $xuid, Item $item): void;
 
@@ -44,6 +42,7 @@ interface IStackStorageAPI
      * @param string $xuid
      * @param $item
      * @return Item
+     * @throws Exception
      */
     public function getItem(string $xuid, $item): Item;
 
@@ -51,12 +50,14 @@ interface IStackStorageAPI
      * @param string $xuid
      * @param Item $item
      * @return bool
+     * @throws Exception
      */
     public function isItemExists(string $xuid, Item $item): bool;
 
     /**
      * @param string $xuid
      * @return array
+     * @throws Exception
      */
     public function getAllItem(string $xuid): array;
 

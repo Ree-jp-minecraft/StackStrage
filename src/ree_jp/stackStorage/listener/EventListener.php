@@ -10,7 +10,6 @@ use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
-use pocketmine\item\Item;
 use pocketmine\Player;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
@@ -18,7 +17,7 @@ use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\IGuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\gui\StackStorage;
-use ree_jp\stackStorage\sqlite\StackStorageHelper;
+use ree_jp\stackStorage\sql\StackStorageHelper;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class EventListener implements Listener
@@ -96,7 +95,14 @@ class EventListener implements Listener
                     }
                     if ($act->getTargetItem()->getId() !== BlockIds::AIR) {
                         $item = $act->getTargetItem();
-                        StackStorageAPI::$instance->add($xuid, $item);
+                        try {
+                            StackStorageAPI::$instance->add($xuid, $item);
+                        } catch (Exception $e) {
+                            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $e->getMessage());
+                            $ev->setCancelled();
+                            return;
+                        }
                         StackStorageAPI::$instance->refresh($n);
                     }
                     if ($act->getSourceItem()->getId() !== BlockIds::AIR and $act->getSlot() < 45) {
@@ -107,7 +113,14 @@ class EventListener implements Listener
                             $ev->setCancelled();
                             return;
                         }
-                        StackStorageAPI::$instance->remove($xuid, $item);
+                        try {
+                            StackStorageAPI::$instance->remove($xuid, $item);
+                        } catch (Exception $e) {
+                            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $e->getMessage());
+                            $ev->setCancelled();
+                            return;
+                        }
                         StackStorageAPI::$instance->refresh($n);
                     }
                 }
