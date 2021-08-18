@@ -60,8 +60,22 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
+    public function setStoredNbtTag(Item $item): Item
+    {
+        $tag = $item->getNamedTag();
+        if ($tag->offsetExists('stackstorage_store_nbt')) {
+            $storeTag = base64_decode($tag->getString('stackstorage_store_nbt'));
+            return (clone $item)->setCompoundTag($storeTag);
+        }
+        return $item;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function add(string $xuid, Item $item): void
     {
+        $item = $this->setStoredNbtTag($item);
         $item->setCount($item->getCount() + $this->getItem($xuid, $item)->getCount());
         StackStorageHelper::$instance->setItem($xuid, $item);
     }
@@ -71,6 +85,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function remove(string $xuid, Item $item): void
     {
+        $item = $this->setStoredNbtTag($item);
         $count = $this->getItem($xuid, $item)->getCount() - $item->getCount();
         StackStorageHelper::$instance->setItem($xuid, $item->setCount($count));
     }
@@ -80,6 +95,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function set(string $xuid, Item $item): void
     {
+        $item = $this->setStoredNbtTag($item);
         StackStorageHelper::$instance->getItem($xuid, $item);
     }
 
@@ -88,6 +104,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getItem(string $xuid, Item $item): Item
     {
+        $item = $this->setStoredNbtTag($item);
         return StackStorageHelper::$instance->getItem($xuid, $item);
     }
 
@@ -96,6 +113,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function isItemExists(string $xuid, Item $item): bool
     {
+        $item = $this->setStoredNbtTag($item);
         $count = StackStorageHelper::$instance->getItem($xuid, $item)->getCount();
         if ($count <= 0) return false;
         return true;

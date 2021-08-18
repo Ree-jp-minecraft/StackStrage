@@ -106,9 +106,9 @@ class EventListener implements Listener
                         StackStorageAPI::$instance->refresh($n);
                     }
                     if ($act->getSourceItem()->getId() !== BlockIds::AIR and $act->getSlot() < 45) {
-                        $item = $act->getSourceItem();
                         try {
-                            if (StackStorageAPI::$instance->getItem($xuid, (clone $item)->setLore([]))->getCount() < $item->getCount()) {
+                            $item = $act->getSourceItem();
+                            if (StackStorageAPI::$instance->getItem($xuid, $item)->getCount() < $item->getCount()) {
                                 throw new Exception('could not reduce items');
                             }
                             StackStorageAPI::$instance->remove($xuid, $item);
@@ -124,15 +124,14 @@ class EventListener implements Listener
 
             }
         }
-        $this->removeLore($p);
+//        $this->removeLore($p);
     }
 
     private function removeLore(Player $p): void
     {
         for ($slot = 0; $slot < $p->getInventory()->getSize(); $slot++) {
-            if ($p->getInventory()->getItem($slot)->getLore() !== []) {
-                $p->getInventory()->setItem($slot, $p->getInventory()->getItem($slot)->setLore([]));
-            }
+            $item = $p->getInventory()->getItem($slot);
+            $p->getInventory()->setItem($slot, StackStorageAPI::$instance->setStoredNbtTag($item));
         }
     }
 }

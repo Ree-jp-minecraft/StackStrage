@@ -67,6 +67,12 @@ interface IStackStorageAPI
     public function sendGui(string $n): void;
 
     /**
+     * @param Item $item
+     * @return Item
+     */
+    public function setStoredNbtTag(Item $item): Item;
+
+    /**
      * @param string $n
      */
     public function refresh(string $n): void;
