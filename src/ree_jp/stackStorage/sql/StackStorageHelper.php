@@ -43,9 +43,10 @@ class StackStorageHelper implements IStackStorageHelper
     public function getStorage(string $xuid): array
     {
         $prepare = $this->db->prepare("SELECT * FROM `:xuid`");
+        $prepare->execute([':xuid' => $xuid]);
         $list = [];
         while ($jsonItemArray = $prepare->fetch()) {
-            $item = json_decode($jsonItemArray['ITEM']);
+            $item = Item::jsonDeserialize(json_decode($jsonItemArray['ITEM'], true));
             if (!$item instanceof Item) throw new Exception('data is corrupted');
             $list[] = $item->setCount($jsonItemArray['COUNT']);
         }
@@ -79,8 +80,8 @@ class StackStorageHelper implements IStackStorageHelper
         $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
         $result = $prepare->fetchColumn();
         if ($result) {
-            return $item->setCount($result);
-        } else return $item->setCount(0);
+            return (clone $item)->setCount($result);
+        } else return (clone $item)->setCount(0);
     }
 
     /**
@@ -90,18 +91,19 @@ class StackStorageHelper implements IStackStorageHelper
     public function setItem(string $xuid, Item $item): void
     {
         $count = $item->getCount();
-        $jsonItem = json_encode($item->setCount(0));
-        if ($this->getItem($xuid, $item)->getCount()) {
-            if ($count <= 0) {
-                $prepare = $this->db->prepare("UPDATE `:xuid` SET COUNT = :count WHERE ITEM = :item");
+        $jsonItem = json_encode((clone $item)->setCount(0));
+        if ($count > 0) {
+
+            if ($this->getItem($xuid, $item)->getCount() === 0) {
+                $prepare = $this->db->prepare("INSERT INTO `:xuid` VALUES (:item ,:count)");
             } else {
-                $prepare = $this->db->prepare("DELETE FROM `:xuid` WHERE ITEM = :item");
+                $prepare = $this->db->prepare("UPDATE `:xuid` SET COUNT = :count WHERE ITEM = :item");
             }
+            $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem, ':count' => $count]);
         } else {
-            if ($count <= 0) throw new Exception('cannot store 0 items');
-            $prepare = $this->db->prepare("INSERT INTO `:xuid` VALUES (:item ,:count)");
+            $prepare = $this->db->prepare("DELETE FROM `:xuid` WHERE ITEM = :item");
+            $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
         }
-        $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem, ':count' => $count]);
     }
 
     /**

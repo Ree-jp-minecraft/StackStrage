@@ -3,6 +3,7 @@
 
 namespace ree_jp\StackStorage;
 
+use pocketmine\item\Item;
 use pocketmine\plugin\PluginBase;
 use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
@@ -18,6 +19,9 @@ class StackStoragePlugin extends PluginBase
 
     public function onEnable()
     {
+        $test = Item::get(1, 0, 10);
+        var_dump(json_encode(clone $test->setCount(1)));
+        var_dump(json_encode($test));
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand($this));
         self::$instance = $this;

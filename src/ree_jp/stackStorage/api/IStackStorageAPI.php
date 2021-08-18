@@ -40,11 +40,11 @@ interface IStackStorageAPI
 
     /**
      * @param string $xuid
-     * @param $item
+     * @param Item $item
      * @return Item
      * @throws Exception
      */
-    public function getItem(string $xuid, $item): Item;
+    public function getItem(string $xuid, Item $item): Item;
 
     /**
      * @param string $xuid
