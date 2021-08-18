@@ -17,13 +17,21 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function __construct(string $host, string $user, string $pass)
+    public function __construct(string $database, string $host, string $db, string $user, string $pass)
     {
         $options = [PDO::ATTR_CASE => PDO::CASE_UPPER,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_TIMEOUT => 5];
-        $dsn = "mysql:host=$host;dbname=StackStorage;charset=utf8";
-        $this->db = new PDO($dsn, $user, $pass, $options);
+        switch ($database) {
+            case 'mysql':
+                $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
+                $this->db = new PDO($dsn, $user, $pass, $options);
+                break;
+
+            case 'sqlite':
+                $this->db = new PDO('sqlite:StackStorage.db', null, null, $options);
+                break;
+        }
     }
 
     /**

@@ -33,8 +33,6 @@ class StackStorage
     private VirtualStackStorage $gui;
     private int $page = 1;
 
-    public array $items = [];
-
     public function __construct(Player $p)
     {
         $this->p = $p;
@@ -67,7 +65,13 @@ class StackStorage
 
         $gui->clearAll();
 
-        $array = StackStorageAPI::$instance->getAllItem($this->p->getXuid());
+        try {
+            $array = StackStorageAPI::$instance->getAllItem($this->p->getXuid());
+        } catch (Exception $e) {
+            $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+            $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $e->getMessage());
+            return;
+        }
         $chunk = array_chunk($array, 45);
         $count = 0;
 

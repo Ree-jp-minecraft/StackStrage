@@ -14,11 +14,13 @@ interface IStackStorageHelper
 
     /**
      * IStackStorageHelper constructor.
+     * @param string $database
      * @param string $host
+     * @param string $db
      * @param string $user
      * @param string $pass
      */
-    public function __construct(string $host, string $user, string $pass);
+    public function __construct(string $database, string $host, string $db, string $user, string $pass);
 
     /**
      * @param string $xuid
