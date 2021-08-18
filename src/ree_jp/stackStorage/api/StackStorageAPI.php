@@ -12,6 +12,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\gui\StackStorage;
 use ree_jp\stackStorage\sql\StackStorageHelper;
+use ree_jp\StackStorage\StackStoragePlugin;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class StackStorageAPI implements IStackStorageAPI
