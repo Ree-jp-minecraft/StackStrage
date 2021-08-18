@@ -7,6 +7,7 @@ namespace ree_jp\stackStorage\api;
 use Exception;
 use pocketmine\item\Item;
 use pocketmine\Player;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\gui\StackStorage;
@@ -131,7 +132,9 @@ class StackStorageAPI implements IStackStorageAPI
     {
         $storage = $this->getStorage($n);
         if ($storage instanceof StackStorage) {
-            $storage->refresh();
+            StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($storage): void {
+                $storage->refresh();
+            }), 3);
         }
     }
 
