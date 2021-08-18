@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree_jp\stackStorage\sqlite;
+namespace ree_jp\stackStorage\sql;
 
 
 use pocketmine\item\Item;

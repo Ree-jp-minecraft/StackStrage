@@ -6,9 +6,8 @@ namespace ree_jp\StackStorage;
 use pocketmine\plugin\PluginBase;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\command\StackStorageCommand;
-use ree_jp\stackStorage\gui\StackStorage;
 use ree_jp\stackStorage\listener\EventListener;
-use ree_jp\stackStorage\sqlite\StackStorageHelper;
+use ree_jp\stackStorage\sql\StackStorageHelper;
 
 class StackStoragePlugin extends PluginBase
 {
@@ -20,13 +19,9 @@ class StackStoragePlugin extends PluginBase
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand($this));
-        self::$instance = $this;;
+        self::$instance = $this;
         StackStorageAPI::$instance = new StackStorageAPI();
         StackStorageHelper::$instance = new StackStorageHelper($this->getConfig()->get('host'), 'StackStorage', $this->getConfig()->get('pass'));
-    }
-
-    public function onDisable()
-    {
     }
 
     /**
