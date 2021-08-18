@@ -40,8 +40,8 @@ class EventListener implements Listener
         $n = $p->getName();
 
         try {
-            GuiAPI::getInstance()->getGui($n);
-            GuiAPI::getInstance()->closeGui($n);
+            GuiAPI::$instance->getGui($n);
+            GuiAPI::$instance->closeGui($n);
         } catch (Exception $ex) {
             if ($ex->getCode() === IGuiAPI::GUI_NOT_FOUND) return;
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
@@ -84,7 +84,7 @@ class EventListener implements Listener
 //
 //							case StackStorage::CLOSE:
 //								try {
-//									GuiAPI::getInstance()->closeGui($n);
+//									GuiAPI::$instance->closeGui($n);
 //								} catch (Exception $ex) {
 //									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 //									$p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());

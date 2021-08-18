@@ -32,7 +32,8 @@ class StackStorageHelper implements IStackStorageHelper
     public function isExists(string $xuid): bool
     {
         $prepare = $this->db->prepare('SHOW TABLES LIKE `:xuid`');
-        return $prepare->fetch([':xuid' => $xuid]) !== false;
+        $prepare->execute([':xuid' => $xuid]);
+        return $prepare->fetch() !== false;
     }
 
     /**
@@ -75,7 +76,8 @@ class StackStorageHelper implements IStackStorageHelper
     {
         $jsonItem = json_encode((clone $item)->setCount(0));
         $prepare = $this->db->prepare("SELECT COUNT FROM `:xuid` WHERE ITEM = :item");
-        $result = $prepare->fetchColumn([':xuid' => $xuid, ':item' => $jsonItem]);
+        $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
+        $result = $prepare->fetchColumn();
         if ($result) {
             return $item->setCount($result);
         } else return $item->setCount(0);

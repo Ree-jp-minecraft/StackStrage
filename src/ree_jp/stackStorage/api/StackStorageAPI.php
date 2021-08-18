@@ -28,7 +28,7 @@ class StackStorageAPI implements IStackStorageAPI
 	public function isOpen(string $n): bool
 	{
 		try {
-			$gui = GuiAPI::getInstance()->getGui($n);
+			$gui = GuiAPI::$instance->getGui($n);
 			if (!$gui instanceof VirtualStackStorage) return false;
 		} catch (Exception $ex) {
 			if ($ex->getCode() === IGuiAPI::PLAYER_NOT_FOUND | IGuiAPI::GUI_NOT_FOUND) return false;
@@ -44,7 +44,7 @@ class StackStorageAPI implements IStackStorageAPI
 		$p = Server::getInstance()->getPlayer($n);
 		if (!$p instanceof Player) return;
 		try {
-			if ($this->isOpen($n)) GuiAPI::getInstance()->closeGui($n);
+            if ($this->isOpen($n)) GuiAPI::$instance->closeGui($n);
 
 			$storage = new StackStorage($p);
 			$storage->sendGui();

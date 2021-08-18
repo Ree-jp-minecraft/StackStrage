@@ -14,11 +14,6 @@ interface IGuiAPI
 	const GUI_NOT_FOUND = 2;
 
 	/**
-	 * @return IGuiAPI
-	 */
-	public static function getInstance(): IGuiAPI;
-
-	/**
 	 * @param string $n
 	 * @return VirtualGui
 	 * @throws Exception

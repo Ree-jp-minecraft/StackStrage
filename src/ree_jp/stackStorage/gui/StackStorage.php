@@ -12,7 +12,6 @@ use pocketmine\math\Vector3;
 use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\tile\Chest;
-
 use pocketmine\tile\Tile;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
@@ -62,7 +61,7 @@ class StackStorage
 			StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
 				new ClosureTask(
 					function (int $tick) use ($gui): void {
-						GuiAPI::getInstance()->sendGui($this->p->getName(), $gui);
+						GuiAPI::$instance->sendGui($this->p->getName(), $gui);
 					}
 				), 3);
 		} catch (Exception $ex) {
@@ -87,7 +86,7 @@ class StackStorage
 					$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 					$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : storage data is corrupted');
 					try {
-						GuiAPI::getInstance()->closeGui($this->p->getName());
+                        GuiAPI::$instance->closeGui($this->p->getName());
 					} catch (Exception $ex) {
 						$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 						$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
@@ -110,7 +109,7 @@ class StackStorage
 					new ClosureTask(
 						function (int $tick): void {
 							try {
-								GuiAPI::getInstance()->closeGui($this->p->getName());
+                                GuiAPI::$instance->closeGui($this->p->getName());
 							} catch (Exception $ex) {
 								$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
 								$this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
