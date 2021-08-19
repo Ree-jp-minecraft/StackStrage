@@ -43,7 +43,7 @@ class StackStorage
         try {
             $p = $this->p;
             $v = $this->p->up(2);
-            $gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $v, $this->p->getLevel());
+            $gui = $this->createGui(self::TITLE, $v, $this->p->getLevel());
             $p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
             $p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
             $this->gui = $gui;
