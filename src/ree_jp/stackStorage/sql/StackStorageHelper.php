@@ -10,7 +10,7 @@ use pocketmine\item\Item;
 
 class StackStorageHelper implements IStackStorageHelper
 {
-    static ?StackStorageHelper $instance = null;
+    static StackStorageHelper $instance;
 
     private PDO $db;
 

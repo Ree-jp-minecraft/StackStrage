@@ -6,6 +6,7 @@ use Exception;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use ree_jp\stackStorage\sql\StackStorageHelper;
+use ree_jp\StackStorage\StackStoragePlugin;
 
 class SqlTask extends AsyncTask
 {
@@ -14,7 +15,6 @@ class SqlTask extends AsyncTask
     private string $db;
     private string $user;
     private string $pass;
-    private StackStorageHelper $helper;
 
     public function __construct(string $database, string $host, string $db, string $user, string $pass)
     {
@@ -35,6 +35,11 @@ class SqlTask extends AsyncTask
 
     public function onCompletion(Server $server)
     {
-        $server->getLogger()->info('[StackStorage] ready sql');
+        if ($this->isCrashed()) {
+            $server->getLogger()->critical('[StackStorage] error sql');
+            $server->getPluginManager()->disablePlugin(StackStoragePlugin::getMain());
+        } else {
+            $server->getLogger()->info('[StackStorage] ready sql');
+        }
     }
 }

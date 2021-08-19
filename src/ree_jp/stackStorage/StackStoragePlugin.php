@@ -8,6 +8,7 @@ use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\command\StackStorageCommand;
 use ree_jp\stackStorage\listener\EventListener;
+use ree_jp\stackStorage\task\SqlTask;
 
 class StackStoragePlugin extends PluginBase
 {
@@ -22,9 +23,9 @@ class StackStoragePlugin extends PluginBase
         self::$instance = $this;
         GuiAPI::$instance = new GuiAPI();
         StackStorageAPI::$instance = new StackStorageAPI();
-//        $this->getServer()->getAsyncPool()->submitTask(
-//            new SqlTask($this->getConfig()->get('database'), $this->getConfig()->get('host'),
-//                $this->getConfig()->get('dbName'), $this->getConfig()->get('user'), $this->getConfig()->get('pass')));
+        $this->getServer()->getAsyncPool()->submitTask(
+            new SqlTask($this->getConfig()->get('database'), $this->getConfig()->get('host'),
+                $this->getConfig()->get('dbName'), $this->getConfig()->get('user'), $this->getConfig()->get('pass')));
     }
 
     /**
