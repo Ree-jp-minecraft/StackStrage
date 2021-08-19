@@ -3,7 +3,6 @@ main: ree_jp\stackStorage\StackStoragePlugin
 api : 3.0.0
 version: 0.1.1
 author: Ree-jp
-description: Simple Virtual Storage
 extensions:
   Core: '>=7.4'
 permissions:

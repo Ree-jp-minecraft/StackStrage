@@ -43,7 +43,6 @@ The description field will be automatically deleted when the player puts it in t
 ![image2](image/image2.png)
 
 # Permission
-
 `stackstorage.command.my`  
 Permission to open my storage by command  
 Default can be used by anyone
@@ -55,8 +54,6 @@ Default can be used by op
 # Download
 
 https://poggit.pmmp.io/p/StackStorage
-
-# Database
 
 # Note
 

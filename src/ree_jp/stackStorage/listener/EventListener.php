@@ -27,9 +27,7 @@ class EventListener implements Listener
         $p = $ev->getPlayer();
 
         try {
-            if (!is_null(StackStorageHelper::$instance)) {
-                StackStorageHelper::$instance->setTable($p->getXuid());
-            }
+            StackStorageHelper::$instance->setTable($p->getXuid());
         } catch (Exception $ex) {
             Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
             Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
