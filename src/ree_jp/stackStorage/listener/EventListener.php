@@ -18,6 +18,7 @@ use ree_jp\stackStorage\api\IGuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\gui\StackStorage;
 use ree_jp\stackStorage\sql\StackStorageHelper;
+use ree_jp\StackStorage\StackStoragePlugin;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class EventListener implements Listener
@@ -27,9 +28,9 @@ class EventListener implements Listener
         $p = $ev->getPlayer();
 
         try {
-            if (!is_null(StackStorageHelper::$instance)) {
-                StackStorageHelper::$instance->setTable($p->getXuid());
-            }
+            if (is_null(StackStorageHelper::$instance)) StackStorageHelper::$instance = new StackStorageHelper(StackStoragePlugin::getMain()->getConfig()->get('database'), StackStoragePlugin::getMain()->getConfig()->get('host'),
+                StackStoragePlugin::getMain()->getConfig()->get('dbName'), StackStoragePlugin::getMain()->getConfig()->get('user'), StackStoragePlugin::getMain()->getConfig()->get('pass'));
+            StackStorageHelper::$instance->setTable($p->getXuid());
         } catch (Exception $ex) {
             Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
             Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
