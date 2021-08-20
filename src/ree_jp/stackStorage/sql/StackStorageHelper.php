@@ -7,6 +7,7 @@ namespace ree_jp\stackStorage\sql;
 use Exception;
 use PDO;
 use pocketmine\item\Item;
+use ree_jp\StackStorage\StackStoragePlugin;
 
 class StackStorageHelper implements IStackStorageHelper
 {
@@ -30,7 +31,8 @@ class StackStorageHelper implements IStackStorageHelper
                 break;
 
             case 'sqlite':
-                $this->db = new PDO('sqlite:StackStorage.db', null, null, $options);
+                $file = StackStoragePlugin::getMain()->getDataFolder() . 'StackStorage.db';
+                $this->db = new PDO('sqlite:' . $file, null, null, $options);
                 break;
 
             default:
@@ -43,8 +45,7 @@ class StackStorageHelper implements IStackStorageHelper
      */
     public function isExists(string $xuid): bool
     {
-        $prepare = $this->db->prepare('SHOW TABLES LIKE `:xuid`');
-        $prepare->execute([':xuid' => $xuid]);
+        $prepare = $this->db->query('SHOW TABLES LIKE [$xuid]');
         return $prepare->fetch() !== false;
     }
 
@@ -54,8 +55,7 @@ class StackStorageHelper implements IStackStorageHelper
      */
     public function getStorage(string $xuid): array
     {
-        $prepare = $this->db->prepare("SELECT * FROM `:xuid`");
-        $prepare->execute([':xuid' => $xuid]);
+        $prepare = $this->db->query("SELECT * FROM [$xuid]");
         $list = [];
         while ($jsonItemArray = $prepare->fetch()) {
             $item = Item::jsonDeserialize(json_decode($jsonItemArray['ITEM'], true));
@@ -72,8 +72,7 @@ class StackStorageHelper implements IStackStorageHelper
     public function setStorage(string $xuid, array $items): void
     {
         if ($this->isExists($xuid)) {
-            $prepare = $this->db->prepare("TRUNCATE TABLE `:xuid`");
-            $prepare->execute([':xuid' => $xuid]);
+            $this->db->exec("TRUNCATE TABLE [$xuid]");
         }
         $this->setTable($xuid);
         foreach ($items as $item) {
@@ -88,8 +87,8 @@ class StackStorageHelper implements IStackStorageHelper
     public function getItem(string $xuid, Item $item): Item
     {
         $jsonItem = json_encode((clone $item)->setCount(0));
-        $prepare = $this->db->prepare("SELECT COUNT FROM `:xuid` WHERE ITEM = :item");
-        $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
+        $prepare = $this->db->prepare("SELECT COUNT FROM [$xuid] WHERE ITEM = :item");
+        $prepare->execute([':item' => $jsonItem]);
         $result = $prepare->fetchColumn();
         if ($result) {
             return (clone $item)->setCount($result);
@@ -107,14 +106,14 @@ class StackStorageHelper implements IStackStorageHelper
         if ($count > 0) {
 
             if ($this->getItem($xuid, $item)->getCount() === 0) {
-                $prepare = $this->db->prepare("INSERT INTO `:xuid` VALUES (:item ,:count)");
+                $prepare = $this->db->prepare("INSERT INTO [$xuid] VALUES (:item ,:count)");
             } else {
-                $prepare = $this->db->prepare("UPDATE `:xuid` SET COUNT = :count WHERE ITEM = :item");
+                $prepare = $this->db->prepare("UPDATE [$xuid] SET COUNT = :count WHERE ITEM = :item");
             }
-            $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem, ':count' => $count]);
+            $prepare->execute([':item' => $jsonItem, ':count' => $count]);
         } else {
-            $prepare = $this->db->prepare("DELETE FROM `:xuid` WHERE ITEM = :item");
-            $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
+            $prepare = $this->db->prepare("DELETE FROM [$xuid] WHERE ITEM = :item");
+            $prepare->execute([':item' => $jsonItem]);
         }
     }
 
@@ -123,7 +122,6 @@ class StackStorageHelper implements IStackStorageHelper
      */
     public function setTable(string $xuid): void
     {
-        $prepare = $this->db->prepare("CREATE TABLE IF NOT EXISTS `:xuid` (ITEM JSON NOT NULL ,COUNT INTEGER UNSIGNED NOT NULL)");
-        $prepare->execute([':xuid' => $xuid]);
+        $this->db->exec("CREATE TABLE IF NOT EXISTS [$xuid] (ITEM JSON NOT NULL ,COUNT INTEGER UNSIGNED NOT NULL)");
     }
 }
