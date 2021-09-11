@@ -16,7 +16,6 @@ use pocketmine\tile\Chest;
 use pocketmine\tile\Tile;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
-use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\stackStoragePlugin;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
@@ -31,18 +30,15 @@ class StackStorage
     private const TITLE = 'StackStorage';
     private Player $p;
     private VirtualStackStorage $gui;
+    private array $storage;
     private int $page = 1;
 
-    public function __construct(Player $p)
+    public function __construct(Player $p, array $storage)
     {
         $this->p = $p;
-    }
-
-    public function sendGui()
-    {
+        $this->storage = $storage;
         try {
-            $p = $this->p;
-            $v = $this->p->up(2);
+            $v = $p->up(2);
             $gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $v, $this->p->getLevel());
             $p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
             $p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
@@ -65,14 +61,7 @@ class StackStorage
 
         $gui->clearAll();
 
-        try {
-            $array = StackStorageAPI::$instance->getAllItem($this->p->getXuid());
-        } catch (Exception $e) {
-            $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-            $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $e->getMessage());
-            return;
-        }
-        $chunk = array_chunk($array, 45);
+        $chunk = array_chunk($this->storage, 45);
         $count = 0;
 
         if (isset($chunk[$this->page - 1])) {

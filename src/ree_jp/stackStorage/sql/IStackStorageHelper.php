@@ -4,7 +4,9 @@
 namespace ree_jp\stackStorage\sql;
 
 
+use Closure;
 use pocketmine\item\Item;
+use pocketmine\plugin\PluginBase;
 
 interface IStackStorageHelper
 {
@@ -14,42 +16,29 @@ interface IStackStorageHelper
 
     /**
      * IStackStorageHelper constructor.
-     * @param string $database
-     * @param string $host
-     * @param string $db
-     * @param string $user
-     * @param string $pass
+     * @param PluginBase $plugin
+     * @param string $path
      */
-    public function __construct(string $database, string $host, string $db, string $user, string $pass);
+    public function __construct(PluginBase $plugin, string $path);
 
     /**
      * @param string $xuid
-     * @return bool
+     * @param Closure $func
+     * @param Closure $failure
      */
-    public function isExists(string $xuid): bool;
-
-    /**
-     * @param string $xuid
-     * @return array
-     */
-    public function getStorage(string $xuid): array;
-
-    /**
-     * @param string $xuid
-     * @param array $items
-     */
-    public function setStorage(string $xuid, array $items): void;
+    public function getStorage(string $xuid, Closure $func, Closure $failure): void;
 
     /**
      * @param string $xuid
      * @param Item $item
-     * @return Item
+     * @param Closure $func
      */
-    public function getItem(string $xuid, Item $item): Item;
+    public function getItem(string $xuid, Item $item, Closure $func): void;
 
     /**
      * @param string $xuid
      * @param Item $item
+     * @param Closure|null $func
      */
-    public function setItem(string $xuid, Item $item): void;
+    public function setItem(string $xuid, Item $item, ?Closure $func): void;
 }

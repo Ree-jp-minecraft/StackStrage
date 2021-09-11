@@ -5,4 +5,7 @@ branches:
 projects:
   StackStrage:
     path: ""
+    libs:
+      - src: poggit/libasynql/libasynql
+        version: ^3.3
 ...

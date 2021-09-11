@@ -10,6 +10,7 @@ use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
+use poggit\libasynql\SqlError;
 use ree_jp\stackStorage\gui\StackStorage;
 use ree_jp\stackStorage\sql\StackStorageHelper;
 use ree_jp\StackStorage\StackStoragePlugin;
@@ -41,22 +42,29 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function sendGui(string $n): void
+    public function sendGui(Player $p, string $xuid): void
     {
-        $p = Server::getInstance()->getPlayer($n);
-        if (!$p instanceof Player) return;
-        try {
-            if ($this->isOpen($n)) GuiAPI::$instance->closeGui($n);
-
-            $storage = new StackStorage($p);
-            $storage->sendGui();
-            $storage->refresh();
-            $this->storage[$n] = $storage;
+        if ($this->isOpen($p->getName())) try {
+            GuiAPI::$instance->closeGui($p->getName());
         } catch (Exception $ex) {
             Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
             Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
             return;
         }
+
+        StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($p, $xuid) {
+            $storage = [];
+            foreach ($rows as $row) {
+                $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                $storage[] = $item->setCount($row['count']);
+            }
+            $storage = new StackStorage($p, $storage);
+            $storage->refresh();
+            $this->storage[$xuid] = $storage;
+        }, function (SqlError $error) use ($p) {
+            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
+        });
     }
 
     /**
@@ -69,7 +77,7 @@ class StackStorageAPI implements IStackStorageAPI
             $storeTag = base64_decode($tag->getString('stackstorage_store_nbt'));
             return (clone $item)->setCompoundTag($storeTag);
         }
-        return $item;
+        return clone $item;
     }
 
     /**
@@ -78,8 +86,22 @@ class StackStorageAPI implements IStackStorageAPI
     public function add(string $xuid, Item $item): void
     {
         $item = $this->setStoredNbtTag($item);
-        $item->setCount($item->getCount() + $this->getItem($xuid, $item)->getCount());
-        StackStorageHelper::$instance->setItem($xuid, $item);
+        $storage = $this->getStorage($xuid);
+        if ($storage instanceof StackStorage) {
+            foreach ($storage as $key => $storageItem) {
+                if (!$storageItem instanceof Item) return;
+                if ($storageItem->equals($item)) {
+                    $storage[$key] = $storageItem->setCount($item->getCount() + $storageItem->getCount());
+                }
+            }
+        }
+        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
+            $arrayItem = array_shift($rows);
+            if (isset($arrayItem['count'])) {
+                $item->setCount($arrayItem['count'] + $item->getCount());
+            }
+            StackStorageHelper::$instance->setItem($xuid, $item);
+        });
     }
 
     /**
@@ -88,45 +110,22 @@ class StackStorageAPI implements IStackStorageAPI
     public function remove(string $xuid, Item $item): void
     {
         $item = $this->setStoredNbtTag($item);
-        $count = $this->getItem($xuid, $item)->getCount() - $item->getCount();
-        StackStorageHelper::$instance->setItem($xuid, $item->setCount($count));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function set(string $xuid, Item $item): void
-    {
-        $item = $this->setStoredNbtTag($item);
-        StackStorageHelper::$instance->getItem($xuid, $item);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getItem(string $xuid, Item $item): Item
-    {
-        $item = $this->setStoredNbtTag($item);
-        return StackStorageHelper::$instance->getItem($xuid, $item);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isItemExists(string $xuid, Item $item): bool
-    {
-        $item = $this->setStoredNbtTag($item);
-        $count = StackStorageHelper::$instance->getItem($xuid, $item)->getCount();
-        if ($count <= 0) return false;
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAllItem(string $xuid): array
-    {
-        return StackStorageHelper::$instance->getStorage($xuid);
+        $storage = $this->getStorage($xuid);
+        if ($storage instanceof StackStorage) {
+            foreach ($storage as $key => $storageItem) {
+                if (!$storageItem instanceof Item) return;
+                if ($storageItem->equals($item)) {
+                    $storage[$key] = $storageItem->setCount($storageItem->getCount() - $item->getCount());
+                }
+            }
+        }
+        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
+            $arrayItem = array_shift($rows);
+            if (isset($arrayItem['count'])) {
+                $item->setCount($arrayItem['count'] - $item->getCount());
+            }
+            StackStorageHelper::$instance->setItem($xuid, $item);
+        });
     }
 
     public function refresh(string $n): void
@@ -162,12 +161,38 @@ class StackStorageAPI implements IStackStorageAPI
     }
 
     /**
-     * @param string $n
+     * @inheritDoc
+     */
+    public function getItem(string $xuid, Item $item): ?Item
+    {
+        $item = $this->setStoredNbtTag($item);
+        $storage = $this->getStorage($xuid);
+        if ($storage instanceof StackStorage) {
+            foreach ($storage as $key => $storageItem) {
+                if (!$storageItem instanceof Item) return null;
+                if ($storageItem->equals($item)) {
+                    return $storageItem;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function closeCache(string $xuid): void
+    {
+        if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
+    }
+
+    /**
+     * @param string $xuid
      * @return StackStorage|null
      */
-    private function getStorage(string $n): ?StackStorage
+    private function getStorage(string $xuid): ?StackStorage
     {
-        if (isset($this->storage[$n])) return $this->storage[$n];
+        if (isset($this->storage[$xuid])) return $this->storage[$xuid];
 
         return null;
     }
