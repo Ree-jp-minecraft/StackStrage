@@ -26,6 +26,11 @@ class StackStoragePlugin extends PluginBase
         StackStorageHelper::$instance = new StackStorageHelper($this, $this->getDataFolder());
     }
 
+    public function onDisable()
+    {
+        StackStorageHelper::$instance->close();
+    }
+
     /**
      * @return string
      */

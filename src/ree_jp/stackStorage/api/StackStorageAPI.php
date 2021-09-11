@@ -88,19 +88,22 @@ class StackStorageAPI implements IStackStorageAPI
         $item = $this->setStoredNbtTag($item);
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
-            foreach ($storage as $key => $storageItem) {
+            $has = false;
+            foreach ($storage->storage as $key => $storageItem) {
                 if (!$storageItem instanceof Item) return;
                 if ($storageItem->equals($item)) {
-                    $storage[$key] = $storageItem->setCount($item->getCount() + $storageItem->getCount());
+                    $has = true;
+                    $storage->storage[$key] = $storageItem->setCount($item->getCount() + $storageItem->getCount());
                 }
             }
+            if (!$has) $storage->storage[] = $item;
         }
         StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
             $arrayItem = array_shift($rows);
             if (isset($arrayItem['count'])) {
                 $item->setCount($arrayItem['count'] + $item->getCount());
             }
-            StackStorageHelper::$instance->setItem($xuid, $item);
+            StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']));
         });
     }
 
@@ -112,10 +115,16 @@ class StackStorageAPI implements IStackStorageAPI
         $item = $this->setStoredNbtTag($item);
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
-            foreach ($storage as $key => $storageItem) {
+            foreach ($storage->storage as $key => $storageItem) {
                 if (!$storageItem instanceof Item) return;
                 if ($storageItem->equals($item)) {
-                    $storage[$key] = $storageItem->setCount($storageItem->getCount() - $item->getCount());
+                    $count = $storageItem->getCount() - $item->getCount();
+                    if ($count > 0) {
+                        $storage->storage[$key] = $storageItem->setCount($count);
+                    } else {
+                        array_splice($storage->storage, $key, 1);
+                    }
+                    break;
                 }
             }
         }
@@ -124,13 +133,13 @@ class StackStorageAPI implements IStackStorageAPI
             if (isset($arrayItem['count'])) {
                 $item->setCount($arrayItem['count'] - $item->getCount());
             }
-            StackStorageHelper::$instance->setItem($xuid, $item);
+            StackStorageHelper::$instance->setItem($xuid, $item, true);
         });
     }
 
-    public function refresh(string $n): void
+    public function refresh(string $xuid): void
     {
-        $storage = $this->getStorage($n);
+        $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
             StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($storage): void {
                 $storage->refresh();
@@ -141,9 +150,9 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function backPage(string $n): void
+    public function backPage(string $xuid): void
     {
-        $storage = $this->getStorage($n);
+        $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
             $storage->backPage();
         }
@@ -152,9 +161,9 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function nextPage(string $n): void
+    public function nextPage(string $xuid): void
     {
-        $storage = $this->getStorage($n);
+        $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
             $storage->nextPage();
         }
@@ -168,8 +177,8 @@ class StackStorageAPI implements IStackStorageAPI
         $item = $this->setStoredNbtTag($item);
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
-            foreach ($storage as $key => $storageItem) {
-                if (!$storageItem instanceof Item) return null;
+            foreach ($storage->storage as $storageItem) {
+                if (!$storageItem instanceof Item) continue;
                 if ($storageItem->equals($item)) {
                     return $storageItem;
                 }

@@ -27,10 +27,11 @@ class StackStorage
     const CLOSE = 49;
     const SYSTEM_ITEM = 1;
 
+    public array $storage;
+
     private const TITLE = 'StackStorage';
     private Player $p;
     private VirtualStackStorage $gui;
-    private array $storage;
     private int $page = 1;
 
     public function __construct(Player $p, array $storage)
@@ -66,6 +67,7 @@ class StackStorage
 
         if (isset($chunk[$this->page - 1])) {
             foreach ($chunk[$this->page - 1] as $item) {
+                $item = clone $item;
                 if (!$item instanceof Item) {
                     $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
                     $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : storage data is corrupted');

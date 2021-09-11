@@ -57,12 +57,12 @@ class EventListener implements Listener
                     if ($act->getSourceItem()->getId() !== BlockIds::AIR) {
                         switch ($act->getSlot()) {
                             case StackStorage::BACK:
-                                StackStorageAPI::$instance->backPage($n);
+                                StackStorageAPI::$instance->backPage($xuid);
                                 $ev->setCancelled();
                                 return;
 
                             case StackStorage::NEXT:
-                                StackStorageAPI::$instance->nextPage($n);
+                                StackStorageAPI::$instance->nextPage($xuid);
                                 $ev->setCancelled();
                                 return;
 
@@ -90,7 +90,7 @@ class EventListener implements Listener
                             $ev->setCancelled();
                             return;
                         }
-                        StackStorageAPI::$instance->refresh($n);
+                        StackStorageAPI::$instance->refresh($xuid);
                     }
                     if ($act->getSourceItem()->getId() !== BlockIds::AIR and $act->getSlot() < 45) {
                         try {
@@ -105,7 +105,7 @@ class EventListener implements Listener
                             $ev->setCancelled();
                             return;
                         }
-                        StackStorageAPI::$instance->refresh($n);
+                        StackStorageAPI::$instance->refresh($xuid);
                     }
                 }
 

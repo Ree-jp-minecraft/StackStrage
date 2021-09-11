@@ -3,9 +3,9 @@
 -- #    { init
 CREATE TABLE IF NOT EXISTS StackStorage
 (
-    xuid  BIGINT PRIMARY KEY NOT NULL,
-    item  JSON               NOT NULL,
-    count INTEGER UNSIGNED   NOT NULL
+    xuid  BIGINT           NOT NULL,
+    item  JSON             NOT NULL,
+    count INTEGER UNSIGNED NOT NULL
 );
 -- #    }
 -- #    { get_all
@@ -27,8 +27,16 @@ WHERE xuid = :xuid
 -- #    :item string
 -- #    :count int
 INSERT INTO StackStorage
-VALUES (:xuid, :item, :count)
-ON DUPLICATE KEY UPDATE count = :count;
+VALUES (:xuid, :item, :count);
+-- #    }
+-- #    { update
+-- #    :xuid int
+-- #    :item string
+-- #    :count int
+UPDATE StackStorage
+SET count = :count
+WHERE xuid = :xuid
+  AND item = :item;
 -- #    }
 -- #    { delete
 -- #    :xuid int

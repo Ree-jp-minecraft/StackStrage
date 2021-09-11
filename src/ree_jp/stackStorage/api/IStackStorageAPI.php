@@ -45,19 +45,19 @@ interface IStackStorageAPI
     public function setStoredNbtTag(Item $item): Item;
 
     /**
-     * @param string $n
+     * @param string $xuid
      */
-    public function refresh(string $n): void;
+    public function refresh(string $xuid): void;
 
     /**
-     * @param string $n
+     * @param string $xuid
      */
-    public function backPage(string $n): void;
+    public function backPage(string $xuid): void;
 
     /**
-     * @param string $n
+     * @param string $xuid
      */
-    public function nextPage(string $n): void;
+    public function nextPage(string $xuid): void;
 
     /**
      * @param string $xuid

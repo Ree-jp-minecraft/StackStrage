@@ -3,7 +3,6 @@
 -- #    { init
 CREATE TABLE IF NOT EXISTS StackStorage
 (
-    PRIMARY KEY (xuid, item),
     xuid  BIGINT           NOT NULL,
     item  JSON             NOT NULL,
     count INTEGER UNSIGNED NOT NULL
@@ -28,8 +27,16 @@ WHERE xuid = :xuid
 -- #    :item string
 -- #    :count int
 INSERT INTO StackStorage
-VALUES (:xuid, :item, :count)
-ON DUPLICATE KEY UPDATE count = :count;
+VALUES (:xuid, :item, :count);
+-- #    }
+-- #    { update
+-- #    :xuid int
+-- #    :item string
+-- #    :count int
+UPDATE StackStorage
+SET count = :count
+WHERE xuid = :xuid
+  AND item = :item;
 -- #    }
 -- #    { delete
 -- #    :xuid int

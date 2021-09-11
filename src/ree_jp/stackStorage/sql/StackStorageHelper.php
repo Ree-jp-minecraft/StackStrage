@@ -54,20 +54,33 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function setItem(string $xuid, Item $item, ?Closure $func = null): void
+    public function setItem(string $xuid, Item $item, bool $isUpdate, ?Closure $func = null): void
     {
         $count = $item->getCount();
         $jsonItem = json_encode((clone $item)->setCount(0));
         if ($count > 0) {
-            $this->db->executeInsert('StackStorage.set', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
-                function (SqlError $error) {
-                    Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
-                });
+            if ($isUpdate) {
+                $this->db->executeInsert('StackStorage.update', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
+                    function (SqlError $error) {
+                        Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                    });
+            } else {
+                $this->db->executeInsert('StackStorage.set', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
+                    function (SqlError $error) {
+                        Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                    });
+            }
         } else {
             $this->db->executeGeneric('StackStorage.delete', ['xuid' => $xuid, 'item' => $jsonItem], $func,
                 function (SqlError $error) {
                     Server::getInstance()->getLogger()->error('Could not delete the item : ' . $error->getErrorMessage());
                 });
         }
+    }
+
+    public function close(): void
+    {
+        $this->db->waitAll();
+        $this->close();
     }
 }
