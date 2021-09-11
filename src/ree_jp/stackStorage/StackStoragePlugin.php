@@ -23,9 +23,7 @@ class StackStoragePlugin extends PluginBase
         self::$instance = $this;
         GuiAPI::$instance = new GuiAPI();
         StackStorageAPI::$instance = new StackStorageAPI();
-        StackStorageHelper::$instance = new StackStorageHelper
-        ($this->getConfig()->get('database'), $this->getConfig()->get('host'), $this->getConfig()->get('dbName'),
-            $this->getConfig()->get('user'), $this->getConfig()->get('pass'));
+        StackStorageHelper::$instance = new StackStorageHelper($this, $this->getDataFolder());
     }
 
     /**

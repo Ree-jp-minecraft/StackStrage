@@ -6,6 +6,7 @@ namespace ree_jp\stackStorage\api;
 
 use Exception;
 use pocketmine\item\Item;
+use pocketmine\Player;
 
 interface IStackStorageAPI
 {
@@ -32,39 +33,10 @@ interface IStackStorageAPI
     public function remove(string $xuid, Item $item): void;
 
     /**
+     * @param Player $p
      * @param string $xuid
-     * @param Item $item
-     * @throws Exception
      */
-    public function set(string $xuid, Item $item): void;
-
-    /**
-     * @param string $xuid
-     * @param Item $item
-     * @return Item
-     * @throws Exception
-     */
-    public function getItem(string $xuid, Item $item): Item;
-
-    /**
-     * @param string $xuid
-     * @param Item $item
-     * @return bool
-     * @throws Exception
-     */
-    public function isItemExists(string $xuid, Item $item): bool;
-
-    /**
-     * @param string $xuid
-     * @return array
-     * @throws Exception
-     */
-    public function getAllItem(string $xuid): array;
-
-    /**
-     * @param string $n
-     */
-    public function sendGui(string $n): void;
+    public function sendGui(Player $p, string $xuid): void;
 
     /**
      * @param Item $item
@@ -86,4 +58,17 @@ interface IStackStorageAPI
      * @param string $n
      */
     public function nextPage(string $n): void;
+
+    /**
+     * @param string $xuid
+     * @param Item $item
+     * @return Item|null
+     */
+    public function getItem(string $xuid, Item $item): ?Item;
+
+    /**
+     * @param string $xuid
+     */
+    public function closeCache(string $xuid): void;
+
 }

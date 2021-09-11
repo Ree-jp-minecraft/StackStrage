@@ -8,31 +8,17 @@ use pocketmine\block\BlockIds;
 use pocketmine\event\inventory\InventoryCloseEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
 use pocketmine\Player;
-use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\IGuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\gui\StackStorage;
-use ree_jp\stackStorage\sql\StackStorageHelper;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
 
 class EventListener implements Listener
 {
-    public function onLogin(PlayerLoginEvent $ev)
-    {
-        $p = $ev->getPlayer();
-
-        try {
-            StackStorageHelper::$instance->setTable($p->getXuid());
-        } catch (Exception $ex) {
-            Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-            Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
-        }
-    }
 
     public function onClose(InventoryCloseEvent $ev)
     {
@@ -42,6 +28,7 @@ class EventListener implements Listener
         try {
             GuiAPI::$instance->getGui($n);
             GuiAPI::$instance->closeGui($n);
+            StackStorageAPI::$instance->closeCache($p->getXuid);
         } catch (Exception $ex) {
             if ($ex->getCode() === IGuiAPI::GUI_NOT_FOUND) return;
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');

@@ -4,126 +4,69 @@
 namespace ree_jp\stackStorage\sql;
 
 
-use Exception;
-use PDO;
+use Closure;
 use pocketmine\item\Item;
+use pocketmine\plugin\PluginBase;
+use pocketmine\Server;
+use pocketmine\utils\Config;
+use poggit\libasynql\DataConnector;
+use poggit\libasynql\libasynql;
+use poggit\libasynql\SqlError;
 
 class StackStorageHelper implements IStackStorageHelper
 {
     static StackStorageHelper $instance;
 
-    private PDO $db;
+    private DataConnector $db;
 
     /**
      * @inheritDoc
-     * @throws Exception
      */
-    public function __construct(string $database, string $host, string $db, string $user, string $pass)
+    public function __construct(PluginBase $plugin, string $path)
     {
-        $options = [PDO::ATTR_CASE => PDO::CASE_UPPER,
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_TIMEOUT => 5];
-        switch ($database) {
-            case 'mysql':
-                $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
-                $this->db = new PDO($dsn, $user, $pass, $options);
-                break;
-
-            case 'sqlite':
-                $this->db = new PDO('sqlite:StackStorage.db', null, null, $options);
-                break;
-
-            default:
-                throw new Exception($database . ' is not support');
-        }
+        $config = new Config($path . 'sql.yml');
+        $this->db = libasynql::create($plugin, $config->get('database'), [
+            'mysql' => 'mysql.sql',
+            'sqlite' => 'sqlite.sql'
+        ]);
     }
 
     /**
      * @inheritDoc
      */
-    public function isExists(string $xuid): bool
+    public function getStorage(string $xuid, Closure $func, Closure $failure): void
     {
-        $prepare = $this->db->prepare('SHOW TABLES LIKE `:xuid`');
-        $prepare->execute([':xuid' => $xuid]);
-        return $prepare->fetch() !== false;
+        $this->db->executeSelect('StackStorage.get_all', ['xuid' => $xuid], $func, $failure);
     }
 
     /**
      * @inheritDoc
-     * @throws Exception
      */
-    public function getStorage(string $xuid): array
-    {
-        $prepare = $this->db->prepare("SELECT * FROM `:xuid`");
-        $prepare->execute([':xuid' => $xuid]);
-        $list = [];
-        while ($jsonItemArray = $prepare->fetch()) {
-            $item = Item::jsonDeserialize(json_decode($jsonItemArray['ITEM'], true));
-            if (!$item instanceof Item) throw new Exception('data is corrupted');
-            $list[] = $item->setCount($jsonItemArray['COUNT']);
-        }
-        return $list;
-    }
-
-    /**
-     * @inheritDoc
-     * @throws Exception
-     */
-    public function setStorage(string $xuid, array $items): void
-    {
-        if ($this->isExists($xuid)) {
-            $prepare = $this->db->prepare("TRUNCATE TABLE `:xuid`");
-            $prepare->execute([':xuid' => $xuid]);
-        }
-        $this->setTable($xuid);
-        foreach ($items as $item) {
-            $this->setItem($xuid, $item);
-        }
-    }
-
-    /**
-     * @inheritDoc
-     * @throws Exception
-     */
-    public function getItem(string $xuid, Item $item): Item
+    public function getItem(string $xuid, Item $item, Closure $func): void
     {
         $jsonItem = json_encode((clone $item)->setCount(0));
-        $prepare = $this->db->prepare("SELECT COUNT FROM `:xuid` WHERE ITEM = :item");
-        $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
-        $result = $prepare->fetchColumn();
-        if ($result) {
-            return (clone $item)->setCount($result);
-        } else return (clone $item)->setCount(0);
+        $this->db->executeSelect('StackStorage.get', ['xuid' => $xuid, 'item' => $jsonItem], $func, function (SqlError $error) {
+            Server::getInstance()->getLogger()->error('Could not get the item : ' . $error->getErrorMessage());
+        });
     }
 
     /**
      * @inheritDoc
-     * @throws Exception
      */
-    public function setItem(string $xuid, Item $item): void
+    public function setItem(string $xuid, Item $item, ?Closure $func = null): void
     {
         $count = $item->getCount();
         $jsonItem = json_encode((clone $item)->setCount(0));
         if ($count > 0) {
-
-            if ($this->getItem($xuid, $item)->getCount() === 0) {
-                $prepare = $this->db->prepare("INSERT INTO `:xuid` VALUES (:item ,:count)");
-            } else {
-                $prepare = $this->db->prepare("UPDATE `:xuid` SET COUNT = :count WHERE ITEM = :item");
-            }
-            $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem, ':count' => $count]);
+            $this->db->executeInsert('StackStorage.set', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
+                function (SqlError $error) {
+                    Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                });
         } else {
-            $prepare = $this->db->prepare("DELETE FROM `:xuid` WHERE ITEM = :item");
-            $prepare->execute([':xuid' => $xuid, ':item' => $jsonItem]);
+            $this->db->executeGeneric('StackStorage.delete', ['xuid' => $xuid, 'item' => $jsonItem], $func,
+                function (SqlError $error) {
+                    Server::getInstance()->getLogger()->error('Could not delete the item : ' . $error->getErrorMessage());
+                });
         }
-    }
-
-    /**
-     * @param string $xuid
-     */
-    public function setTable(string $xuid): void
-    {
-        $prepare = $this->db->prepare("CREATE TABLE IF NOT EXISTS `:xuid` (ITEM JSON NOT NULL ,COUNT INTEGER UNSIGNED NOT NULL)");
-        $prepare->execute([':xuid' => $xuid]);
     }
 }
