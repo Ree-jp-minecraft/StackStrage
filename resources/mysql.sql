@@ -3,10 +3,9 @@
 -- #    { init
 CREATE TABLE IF NOT EXISTS StackStorage
 (
-    PRIMARY KEY (xuid, item),
-    xuid  BIGINT           NOT NULL,
-    item  JSON             NOT NULL,
-    count INTEGER UNSIGNED NOT NULL
+    xuid  BIGINT PRIMARY KEY NOT NULL,
+    item  JSON               NOT NULL,
+    count INTEGER UNSIGNED   NOT NULL
 );
 -- #    }
 -- #    { get_all
