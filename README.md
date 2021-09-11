@@ -5,17 +5,33 @@ Mysql Version
 
 # Setup
 
-### Config
+## Config
 
-```yaml
-database: mysql #Will support sqlite
-host: localhost #Mysql address
-dbName: StackStorage #Mysql db
-user: StackStorage #Mysql user
-pass: password #Mysql password
+### sql.yaml
+
+```yml
+database:
+  # mysql or sqlite
+  type: mysql
+
+    # Edit these settings only if you choose "sqlite".
+  sqlite:
+    # The file name of the database in the plugin data folder.
+  # You can also put an absolute path here.
+    file: data.sqlite
+  # Edit these settings only if you choose "mysql".
+  mysql:
+    host: 127.0.0.1
+    # Avoid using the "root" user for security reasons.
+    username: StackStorage
+    password: password
+    schema: StackStorage
+  # The maximum number of simultaneous SQL queries
+  # Recommended: 1 for sqlite, 2 for MySQL. You may want to further increase this value if your MySQL connection is very slow.
+  worker-limit: 2
 ```
 
-### Mysql
+### Mysql Setup
 
 ```mysql
 CREATE DATABASE StackStorage;
@@ -29,8 +45,7 @@ You can open the storage at / stackstorage or / st
 
 # Admin
 
-/stackstorage [userName]  
-*You can only open it if the player is on the server
+/stackstorage [xuid]
 
 # Feature
 
@@ -58,4 +73,3 @@ https://poggit.pmmp.io/p/StackStorage
 # Note
 
 - Data of versions below 0.1.0 cannot be inherited
-- Mysql only

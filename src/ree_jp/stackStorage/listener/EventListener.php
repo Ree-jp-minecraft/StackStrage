@@ -28,7 +28,7 @@ class EventListener implements Listener
         try {
             GuiAPI::$instance->getGui($n);
             GuiAPI::$instance->closeGui($n);
-            StackStorageAPI::$instance->closeCache($p->getXuid);
+            StackStorageAPI::$instance->closeCache($p->getXuid());
         } catch (Exception $ex) {
             if ($ex->getCode() === IGuiAPI::GUI_NOT_FOUND) return;
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
