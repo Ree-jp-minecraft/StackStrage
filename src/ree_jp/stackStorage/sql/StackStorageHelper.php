@@ -81,6 +81,6 @@ class StackStorageHelper implements IStackStorageHelper
     public function close(): void
     {
         $this->db->waitAll();
-        $this->close();
+        $this->db->close();
     }
 }
