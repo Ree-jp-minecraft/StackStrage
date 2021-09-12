@@ -41,8 +41,13 @@ class StackStoragePlugin extends PluginBase
                 return;
             }
         }
-        while (!Queue::isEmpty()) {
+        $timer = 0;
+        while (!Queue::isEmpty() && $timer < 30) {
+            $timer++;
             sleep(1);
+        }
+        if ($timer >= 30) {
+            $this->getLogger()->critical('The data could not be saved');
         }
         StackStorageHelper::$instance->close();
     }

@@ -11,14 +11,21 @@ class Queue
     static function enqueue(string $xuid, Closure $func): void
     {
         $empty = empty(self::$queues[$xuid]);
+        if ($empty) {
+            self::$queues[$xuid] = [];
+        }
         array_push(self::$queues[$xuid], $func);
         if ($empty) $func();
     }
 
     static function dequeue(string $xuid): void
     {
-        if (isset(self::$queues[$xuid])) {
+        if (isset(self::$queues[$xuid]) && !empty(self::$queues[$xuid])) {
             array_shift(self::$queues[$xuid]);
+            $next = current(self::$queues[$xuid]);
+            if ($next !== false) {
+                $next();
+            }
         }
     }
 
