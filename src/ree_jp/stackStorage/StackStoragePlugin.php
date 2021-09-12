@@ -3,11 +3,15 @@
 
 namespace ree_jp\StackStorage;
 
+use Exception;
 use pocketmine\plugin\PluginBase;
+use pocketmine\Server;
+use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\command\StackStorageCommand;
 use ree_jp\stackStorage\listener\EventListener;
+use ree_jp\stackStorage\sql\Queue;
 use ree_jp\stackStorage\sql\StackStorageHelper;
 
 class StackStoragePlugin extends PluginBase
@@ -28,6 +32,18 @@ class StackStoragePlugin extends PluginBase
 
     public function onDisable()
     {
+        foreach ($this->getServer()->getOnlinePlayers() as $p) {
+            if (StackStorageAPI::$instance->isOpen($p->getName())) try {
+                GuiAPI::$instance->closeGui($p->getName());
+            } catch (Exception $ex) {
+                Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
+                return;
+            }
+        }
+        while (!Queue::isEmpty()) {
+            sleep(1);
+        }
         StackStorageHelper::$instance->close();
     }
 

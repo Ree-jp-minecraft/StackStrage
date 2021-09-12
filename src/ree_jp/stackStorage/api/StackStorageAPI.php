@@ -12,6 +12,7 @@ use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\SqlError;
 use ree_jp\stackStorage\gui\StackStorage;
+use ree_jp\stackStorage\sql\Queue;
 use ree_jp\stackStorage\sql\StackStorageHelper;
 use ree_jp\StackStorage\StackStoragePlugin;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
@@ -52,18 +53,22 @@ class StackStorageAPI implements IStackStorageAPI
             return;
         }
 
-        StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($p, $xuid) {
-            $storage = [];
-            foreach ($rows as $row) {
-                $item = Item::jsonDeserialize(json_decode($row['item'], true));
-                $storage[] = $item->setCount($row['count']);
-            }
-            $storage = new StackStorage($p, $storage);
-            $storage->refresh();
-            $this->storage[$xuid] = $storage;
-        }, function (SqlError $error) use ($p) {
-            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
+        Queue::enqueue($xuid, function () use ($p, $xuid) {
+            StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($p, $xuid) {
+                $storage = [];
+                foreach ($rows as $row) {
+                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                    $storage[] = $item->setCount($row['count']);
+                }
+                $storage = new StackStorage($p, $storage);
+                $storage->refresh();
+                $this->storage[$xuid] = $storage;
+                Queue::dequeue($xuid);
+            }, function (SqlError $error) use ($xuid, $p) {
+                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
+                Queue::dequeue($xuid);
+            });
         });
     }
 
@@ -98,12 +103,16 @@ class StackStorageAPI implements IStackStorageAPI
             }
             if (!$has) $storage->storage[] = $item;
         }
-        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
-            $arrayItem = array_shift($rows);
-            if (isset($arrayItem['count'])) {
-                $item->setCount($arrayItem['count'] + $item->getCount());
-            }
-            StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']));
+        Queue::enqueue($xuid, function () use ($item, $xuid) {
+            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
+                $arrayItem = array_shift($rows);
+                if (isset($arrayItem['count'])) {
+                    $item->setCount($arrayItem['count'] + $item->getCount());
+                }
+                StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($xuid) {
+                    Queue::dequeue($xuid);
+                });
+            });
         });
     }
 
@@ -128,12 +137,16 @@ class StackStorageAPI implements IStackStorageAPI
                 }
             }
         }
-        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
-            $arrayItem = array_shift($rows);
-            if (isset($arrayItem['count'])) {
-                $item->setCount($arrayItem['count'] - $item->getCount());
-            }
-            StackStorageHelper::$instance->setItem($xuid, $item, true);
+        Queue::enqueue($xuid, function () use ($item, $xuid) {
+            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
+                $arrayItem = array_shift($rows);
+                if (isset($arrayItem['count'])) {
+                    $item->setCount($arrayItem['count'] - $item->getCount());
+                }
+                StackStorageHelper::$instance->setItem($xuid, $item, true, function () use ($xuid) {
+                    Queue::dequeue($xuid);
+                });
+            });
         });
     }
 

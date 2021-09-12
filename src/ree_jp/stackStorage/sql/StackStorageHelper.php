@@ -61,19 +61,22 @@ class StackStorageHelper implements IStackStorageHelper
         if ($count > 0) {
             if ($isUpdate) {
                 $this->db->executeInsert('StackStorage.update', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
-                    function (SqlError $error) {
+                    function (SqlError $error) use ($xuid) {
                         Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                        Queue::dequeue($xuid);
                     });
             } else {
                 $this->db->executeInsert('StackStorage.set', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
-                    function (SqlError $error) {
+                    function (SqlError $error) use ($xuid) {
                         Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                        Queue::dequeue($xuid);
                     });
             }
         } else {
             $this->db->executeGeneric('StackStorage.delete', ['xuid' => $xuid, 'item' => $jsonItem], $func,
-                function (SqlError $error) {
+                function (SqlError $error) use ($xuid) {
                     Server::getInstance()->getLogger()->error('Could not delete the item : ' . $error->getErrorMessage());
+                    Queue::dequeue($xuid);
                 });
         }
     }
