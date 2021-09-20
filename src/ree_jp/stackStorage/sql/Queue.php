@@ -54,8 +54,12 @@ class Queue
             }
             foreach (self::$cache[$xuid] as $key => $cacheItem) {
                 if (!$cacheItem instanceof Item) continue;
-                if ($item->equals($cacheItem)) self::$cache[$xuid][$key] = $cacheItem->setCount($cacheItem->getCount() + $item->getCount());
+                if ($item->equals($cacheItem)) {
+                    self::$cache[$xuid][$key] = $cacheItem->setCount($cacheItem->getCount() + $item->getCount());
+                    return;
+                }
             }
+            array_push(self::$cache[$xuid], $item);
         } else self::addItem($xuid, $item);
     }
 
