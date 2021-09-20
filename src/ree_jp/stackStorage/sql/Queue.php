@@ -24,8 +24,9 @@ class Queue
             self::$task[$xuid]->cancel();
             unset(self::$task[$xuid]);
         }
+        $isFinalEmpty = empty(self::$queues[$xuid]);
         array_push(self::$queues[$xuid], $func);
-        if (empty(self::$queues[$xuid])) $func();
+        if ($isFinalEmpty) $func();
     }
 
     static function dequeue(string $xuid): void
