@@ -102,18 +102,9 @@ class StackStorageAPI implements IStackStorageAPI
                 }
             }
             if (!$has) $storage->storage[] = $item;
+            $storage->refresh();
         }
-        Queue::enqueue($xuid, function () use ($item, $xuid) {
-            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
-                $arrayItem = array_shift($rows);
-                if (isset($arrayItem['count'])) {
-                    $item->setCount($arrayItem['count'] + $item->getCount());
-                }
-                StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($xuid) {
-                    Queue::dequeue($xuid);
-                });
-            });
-        });
+        Queue::add($xuid, $item);
     }
 
     /**
@@ -136,18 +127,9 @@ class StackStorageAPI implements IStackStorageAPI
                     break;
                 }
             }
+            $storage->refresh();
         }
-        Queue::enqueue($xuid, function () use ($item, $xuid) {
-            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
-                $arrayItem = array_shift($rows);
-                if (isset($arrayItem['count'])) {
-                    $item->setCount($arrayItem['count'] - $item->getCount());
-                }
-                StackStorageHelper::$instance->setItem($xuid, $item, true, function () use ($xuid) {
-                    Queue::dequeue($xuid);
-                });
-            });
-        });
+        Queue::reduce($xuid, $item);
     }
 
     public function refresh(string $xuid): void
