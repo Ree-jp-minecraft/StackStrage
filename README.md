@@ -7,7 +7,7 @@ Mysql Version
 
 ## Config
 
-### sql.yaml
+### sql.yml
 
 ```yml
 database:
