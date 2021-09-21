@@ -7,11 +7,9 @@ namespace ree_jp\stackStorage\sql;
 use Closure;
 use pocketmine\item\Item;
 use pocketmine\plugin\PluginBase;
-use pocketmine\Server;
 use pocketmine\utils\Config;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
-use poggit\libasynql\SqlError;
 
 class StackStorageHelper implements IStackStorageHelper
 {
@@ -43,41 +41,27 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function getItem(string $xuid, Item $item, Closure $func): void
+    public function getItem(string $xuid, Item $item, Closure $func, Closure $failure): void
     {
         $jsonItem = json_encode((clone $item)->setCount(0));
-        $this->db->executeSelect('StackStorage.get', ['xuid' => $xuid, 'item' => $jsonItem], $func, function (SqlError $error) {
-            Server::getInstance()->getLogger()->error('Could not get the item : ' . $error->getErrorMessage());
-        });
+        $this->db->executeSelect('StackStorage.get', ['xuid' => $xuid, 'item' => $jsonItem], $func, $failure);
     }
 
     /**
      * @inheritDoc
      */
-    public function setItem(string $xuid, Item $item, bool $isUpdate, ?Closure $func = null): void
+    public function setItem(string $xuid, Item $item, bool $isUpdate, Closure $func, Closure $failure): void
     {
         $count = $item->getCount();
         $jsonItem = json_encode((clone $item)->setCount(0));
         if ($count > 0) {
             if ($isUpdate) {
-                $this->db->executeInsert('StackStorage.update', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
-                    function (SqlError $error) use ($xuid) {
-                        Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
-                        Queue::dequeue($xuid);
-                    });
+                $this->db->executeInsert('StackStorage.update', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func, $failure);
             } else {
-                $this->db->executeInsert('StackStorage.set', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func,
-                    function (SqlError $error) use ($xuid) {
-                        Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
-                        Queue::dequeue($xuid);
-                    });
+                $this->db->executeInsert('StackStorage.set', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func, $failure);
             }
         } else {
-            $this->db->executeGeneric('StackStorage.delete', ['xuid' => $xuid, 'item' => $jsonItem], $func,
-                function (SqlError $error) use ($xuid) {
-                    Server::getInstance()->getLogger()->error('Could not delete the item : ' . $error->getErrorMessage());
-                    Queue::dequeue($xuid);
-                });
+            $this->db->executeGeneric('StackStorage.delete', ['xuid' => $xuid, 'item' => $jsonItem], $func, $failure);
         }
     }
 

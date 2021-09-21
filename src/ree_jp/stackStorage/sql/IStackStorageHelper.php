@@ -32,16 +32,18 @@ interface IStackStorageHelper
      * @param string $xuid
      * @param Item $item
      * @param Closure $func
+     * @param Closure $failure
      */
-    public function getItem(string $xuid, Item $item, Closure $func): void;
+    public function getItem(string $xuid, Item $item, Closure $func, Closure $failure): void;
 
     /**
      * @param string $xuid
      * @param Item $item
      * @param bool $isUpdate
-     * @param Closure|null $func
+     * @param Closure $func
+     * @param Closure $failure
      */
-    public function setItem(string $xuid, Item $item, bool $isUpdate, ?Closure $func): void;
+    public function setItem(string $xuid, Item $item, bool $isUpdate, Closure $func, Closure $failure): void;
 
     public function close(): void;
 }

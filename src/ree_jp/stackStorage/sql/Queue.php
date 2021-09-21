@@ -5,6 +5,8 @@ namespace ree_jp\stackStorage\sql;
 use Closure;
 use pocketmine\item\Item;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\Server;
+use poggit\libasynql\SqlError;
 use ree_jp\StackStorage\StackStoragePlugin;
 
 class Queue
@@ -77,7 +79,13 @@ class Queue
                 if (isset($arrayItem['count'])) $item->setCount($arrayItem['count'] + $item->getCount());
                 StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($xuid) {
                     Queue::dequeue($xuid);
+                }, function (SqlError $error) use ($xuid) {
+                    Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                    Queue::dequeue($xuid);
                 });
+            }, function (SqlError $error) use ($xuid) {
+                Queue::dequeue($xuid);
+                Server::getInstance()->getLogger()->error('Could not get the item : ' . $error->getErrorMessage());
             });
         }, $isTask);
     }

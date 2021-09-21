@@ -4,6 +4,7 @@
 namespace ree_jp\stackStorage\api;
 
 
+use Closure;
 use Exception;
 use pocketmine\item\Item;
 use pocketmine\Player;
@@ -53,22 +54,13 @@ class StackStorageAPI implements IStackStorageAPI
             return;
         }
 
-        Queue::enqueue($xuid, function () use ($p, $xuid) {
-            StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($p, $xuid) {
-                $storage = [];
-                foreach ($rows as $row) {
-                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
-                    $storage[] = $item->setCount($row['count']);
-                }
-                $storage = new StackStorage($p, $storage);
-                $storage->refresh();
-                $this->storage[$xuid] = $storage;
-                Queue::dequeue($xuid);
-            }, function (SqlError $error) use ($xuid, $p) {
-                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
-                Queue::dequeue($xuid);
-            });
+        $this->getAllItems($xuid, function (array $items) use ($p, $xuid) {
+            $storage = new StackStorage($p, $items);
+            $storage->refresh();
+            $this->storage[$xuid] = $storage;
+        }, function (SqlError $error) use ($xuid, $p) {
+            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+            $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
         });
     }
 
@@ -167,7 +159,47 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function getItem(string $xuid, Item $item): ?Item
+    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void
+    {
+        Queue::enqueue($xuid, function () use ($item, $failure, $func, $xuid) {
+            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
+                $arrayItem = array_shift($rows);
+                $count = 0;
+                if (isset($arrayItem['count'])) $count = $arrayItem['count'];
+                Queue::dequeue($xuid);
+                $func($count);
+            }, function (SqlError $error) use ($failure, $xuid) {
+                Queue::dequeue($xuid);
+                if (!is_null($failure)) $failure($error);
+            });
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
+    {
+        Queue::enqueue($xuid, function () use ($failure, $func, $xuid) {
+            StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
+                $items = [];
+                foreach ($rows as $row) {
+                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                    $items[] = $item->setCount($row['count']);
+                }
+                Queue::dequeue($xuid);
+                $func($items);
+            }, function (SqlError $error) use ($failure, $xuid) {
+                Queue::dequeue($xuid);
+                if (!is_null($failure)) $failure($error);
+            });
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasCountFromCache(string $xuid, Item $item): bool
     {
         $item = $this->setStoredNbtTag($item);
         $storage = $this->getStorage($xuid);
@@ -175,11 +207,11 @@ class StackStorageAPI implements IStackStorageAPI
             foreach ($storage->storage as $storageItem) {
                 if (!$storageItem instanceof Item) continue;
                 if ($storageItem->equals($item)) {
-                    return $storageItem;
+                    return $storageItem->getCount() >= $item->getCount();
                 }
             }
         }
-        return null;
+        return false;
     }
 
     /**
