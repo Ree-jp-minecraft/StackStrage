@@ -59,6 +59,7 @@ The description field will be automatically deleted when the player puts it in t
 ![image2](image/image2.png)
 
 # Permission
+
 `stackstorage.command.my`  
 Permission to open my storage by command  
 Default can be used by anyone
@@ -66,6 +67,14 @@ Default can be used by anyone
 `stackstorage.command.user`  
 Permission to open all user storage by command  
 Default can be used by op
+
+# StackStorage API
+
+Interface  
+[IStackStorageAPI](https://github.com/Ree-jp-minecraft/StackStrage/blob/master/src/ree_jp/stackStorage/api/IStackStorageAPI.php)
+
+Document  
+https://blog.ree-jp.net/stack-storage-api/
 
 # Download
 
