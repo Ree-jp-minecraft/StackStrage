@@ -7,7 +7,9 @@ extensions:
   Core: '>=7.4'
 permissions:
   stackstorage.command:
-    my:
-     default: true
-    user:
-     default: op
+    default: true
+    children:
+      stackstorage.command.my:
+        default: true
+      stackstorage.command.user:
+        default: op

@@ -8,6 +8,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\StackStorageAPI;
 
@@ -35,7 +36,10 @@ class StackStorageCommand extends PluginCommand
 
         if (isset($args[0])) {
             if ($sender->hasPermission("stackstorage.command.user")) {
-                StackStorageAPI::$instance->sendGui($sender, $args[0]);
+                $p = Server::getInstance()->getPlayer($args[0]);
+                if ($p instanceof Player) {
+                    StackStorageAPI::$instance->sendGui($sender, $p->getXuid());
+                } else StackStorageAPI::$instance->sendGui($sender, $args[0]);
             } else {
                 $sender->sendMessage('not allow permission stackstorage.command.user');
             }
