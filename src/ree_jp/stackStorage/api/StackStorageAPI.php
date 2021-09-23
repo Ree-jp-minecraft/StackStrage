@@ -96,7 +96,7 @@ class StackStorageAPI implements IStackStorageAPI
             if (!$has) $storage->storage[] = $item;
             $storage->refresh();
         }
-        Queue::add($xuid, $item);
+        Queue::add($xuid, clone $item);
     }
 
     /**
@@ -121,7 +121,7 @@ class StackStorageAPI implements IStackStorageAPI
             }
             $storage->refresh();
         }
-        Queue::reduce($xuid, $item);
+        Queue::reduce($xuid, clone $item);
     }
 
     public function refresh(string $xuid): void
