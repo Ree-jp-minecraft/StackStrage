@@ -7,6 +7,8 @@ Mysql Version
 
 ## Config
 
+## **sql.yml instead of config.yml**
+
 ### sql.yml
 
 ```yml
