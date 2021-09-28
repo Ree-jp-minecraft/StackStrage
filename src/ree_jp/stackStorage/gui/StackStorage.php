@@ -77,7 +77,7 @@ class StackStorage
                 if ($item->getMaxStackSize() < $item->getCount()) {
                     $storeCount = $item->getCount();
                     $item->setCount($item->getMaxStackSize());
-                    $item->setNamedTagEntry(new StringTag('stackstorage_store_nbt', base64_decode($item->getCompoundTag())));
+                    $item->setNamedTagEntry(new StringTag('stackstorage_store_nbt', base64_encode($item->getCompoundTag())));
                     $item->setLore(['Count', $storeCount]);
                 }
                 $this->gui->setItem($count, $item);
