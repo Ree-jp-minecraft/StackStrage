@@ -1,7 +1,7 @@
 name: StackStorage
 main: ree_jp\stackStorage\StackStoragePlugin
 api : 3.0.0
-version: 1.1.1
+version: 1.1.2
 author: Ree-jp
 extensions:
   Core: '>=7.4'

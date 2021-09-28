@@ -1,7 +1,7 @@
 # StackStorage [![](https://poggit.pmmp.io/shield.dl.total/StackStorage)](https://poggit.pmmp.io/p/StackStorage)
 
 Add simple virtual storage  
-Mysql Version
+Sqlite & Mysql
 
 # Setup
 
@@ -9,12 +9,12 @@ Mysql Version
 
 ## **sql.yml instead of config.yml**
 
-### sql.yml
+### [sql.yml](https://cloud.ree-jp.net/s/Pj5N2rDnR8GmawJ/download)
 
 ```yml
 database:
   # mysql or sqlite
-  type: mysql
+  type: sqlite
 
     # Edit these settings only if you choose "sqlite".
   sqlite:
@@ -31,10 +31,10 @@ database:
     schema: StackStorage
   # The maximum number of simultaneous SQL queries
   # Recommended: 1 for sqlite, 2 for MySQL. You may want to further increase this value if your MySQL connection is very slow.
-  worker-limit: 2
+  worker-limit: 1
 ```
 
-### Mysql Setup
+#### Mysql Setup
 
 ```mysql
 CREATE DATABASE StackStorage;
@@ -49,6 +49,7 @@ You can open the storage at / stackstorage or / st
 # Admin
 
 /stackstorage [xuid]
+If the player is online /stackstorage [name]
 
 # Feature
 
@@ -85,3 +86,4 @@ https://poggit.pmmp.io/p/StackStorage
 # Note
 
 - Data of versions below 0.1.0 cannot be inherited
+- [There is a bug that cannot be used in the world converted from java](https://github.com/Ree-jp-minecraft/StackStrage/issues/19)
