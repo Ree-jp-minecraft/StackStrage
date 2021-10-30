@@ -41,9 +41,10 @@ class StackStorage
         $this->storage = $storage;
         try {
             $v = $p->up(2);
-            $gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $v, $this->p->getLevel());
-            $p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
-            $p->getLevel()->sendBlocks([$p], [Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ())]);
+            $bl1 = Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ());
+            $bl2 = Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ());
+            $p->getLevel()->sendBlocks([$p], [$bl1, $bl2]);
+            $gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $bl1, $bl2, $this->p->getLevel());
             $this->gui = $gui;
             StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
                 new ClosureTask(
@@ -133,15 +134,16 @@ class StackStorage
 
     /**
      * @param string $title
-     * @param Vector3 $v
+     * @param Vector3 $bl1
+     * @param Vector3 $bl2
      * @param Level $level
      * @return VirtualStackStorage
      * @throws Exception
      */
-    private function createGui(string $title, Vector3 $v, Level $level): VirtualStackStorage
+    private function createGui(string $title, Vector3 $bl1, Vector3 $bl2, Level $level): VirtualStackStorage
     {
-        $bl = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($v));
-        $bl_2 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($v->west()));
+        $bl = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl1));
+        $bl_2 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl2));
         if ($bl instanceof Chest and $bl_2 instanceof Chest) {
             $bl->setName($title);
             $bl_2->setName($title);
