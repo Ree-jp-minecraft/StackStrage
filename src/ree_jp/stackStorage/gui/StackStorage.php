@@ -16,6 +16,7 @@ use pocketmine\tile\Chest;
 use pocketmine\tile\Tile;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
+use ree_jp\stackStorage\api\IGuiAPI;
 use ree_jp\stackStorage\api\StackStorageAPI;
 use ree_jp\stackStorage\stackStoragePlugin;
 use ree_jp\stackStorage\virtual\VirtualStackStorage;
@@ -56,7 +57,11 @@ class StackStorage
                 new ClosureTask(
                     function (int $tick) use ($gui): void {
                         if (!StackStorageAPI::$instance->isOpen($this->p->getName())) {
-                            GuiAPI::$instance->closeGui($this->p->getName());
+                            try {
+                                GuiAPI::$instance->closeGui($this->p->getName());
+                            } catch (Exception $ex) {
+                                if ($ex->getCode() === IGuiAPI::PLAYER_NOT_FOUND | IGuiAPI::GUI_NOT_FOUND) return;
+                            }
                         }
                     }
                 ), 10);
