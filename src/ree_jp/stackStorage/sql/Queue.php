@@ -11,58 +11,112 @@ use ree_jp\StackStorage\StackStoragePlugin;
 
 class Queue
 {
-    static array $queues = [];
-    static array $cache = [];
+    static array $queues = []; // データ取得関係のタスク (アイテムの数を取得するなど)
+    static array $stockQueues = []; // 実行中の在庫関係のタスク (アイテムの追加、減らすなど)
+    static array $cache = []; // 在庫関係のキャッシュ
+    static array $blockedCache = []; // 在庫関係のタスクを中止されている間はここにキャッシュ
     static array $task = [];
 
-    static function enqueue(string $xuid, Closure $func, bool $isCache = false): void
+    static bool $isBlockCache = false; // 在庫関係のタスクを中止するかどうか
+
+    static function enqueue(string $xuid, Closure $func): void
     {
         if (empty(self::$queues[$xuid])) {
             self::$queues[$xuid] = [];
+            self::$isBlockCache = true;
+            array_push(self::$queues[$xuid], $func);
+
+            if (empty(self::$stockQueues[$xuid]) && empty(self::$cache[$xuid])) { // 処理中とキャッシュがなければ即座にqueueに追加
+                $func();
+            }
+        } else { // すでに別のキューがある場合
+            array_push(self::$queues[$xuid], $func);
         }
-        if (!$isCache && !empty(self::$cache[$xuid])) {
-            foreach (self::$cache[$xuid] as $item) self::addItem($xuid, $item, true);
-            unset(self::$cache[$xuid]);
-            self::$task[$xuid]->cancel();
-            unset(self::$task[$xuid]);
-        }
-        $isFinalEmpty = empty(self::$queues[$xuid]);
-        array_push(self::$queues[$xuid], $func);
-        if ($isFinalEmpty) $func();
     }
 
     static function dequeue(string $xuid): void
     {
-        if (isset(self::$queues[$xuid]) && !empty(self::$queues[$xuid])) {
+        if (!empty(self::$queues[$xuid])) {
             array_shift(self::$queues[$xuid]);
             $next = current(self::$queues[$xuid]);
-            if ($next !== false) {
+            if ($next === false) { // 次のキューがなければ在庫関係の処理を再開
+                self::$isBlockCache = false;
+                foreach (self::$blockedCache[$xuid] as $cacheItem) {
+                    self::add($xuid, $cacheItem);
+                }
+            } else { // 次のキューがあれば連続で
                 $next();
             }
         }
     }
 
-    static function add(string $xuid, Item $item): void
+    private static function stockEnqueue(string $xuid, Item $item)
     {
-//        if (self::isEmpty($xuid)) {
-        if (empty(self::$cache[$xuid])) {
-            self::$cache[$xuid] = [];
-            self::$task[$xuid] = StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($xuid): void {
-                if (empty(self::$cache[$xuid])) return;
-                foreach (self::$cache[$xuid] as $item) self::addItem($xuid, $item, true);
-                unset(self::$cache[$xuid]);
-                unset(self::$task[$xuid]);
-            }), 1 * 20);
+        if (empty(self::$stockQueues[$xuid])) {
+            self::$queues[$xuid] = [];
         }
-        foreach (self::$cache[$xuid] as $key => $cacheItem) {
-            if (!$cacheItem instanceof Item) continue;
-            if ($item->equals($cacheItem)) {
-                self::$cache[$xuid][$key] = $cacheItem->setCount($cacheItem->getCount() + $item->getCount());
-                return;
+        self::$stockQueues[$xuid][] = $item;
+        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
+            $arrayItem = array_shift($rows);
+            if (isset($arrayItem['count'])) $item->setCount($arrayItem['count'] + $item->getCount());
+            StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($item, $xuid) {
+                Queue::stockDequeue($xuid, $item);
+            }, function (SqlError $error) use ($item, $xuid) {
+                Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
+                Queue::stockDequeue($xuid, $item);
+            });
+        }, function (SqlError $error) use ($item, $xuid) {
+            Queue::stockDequeue($xuid, $item);
+            Server::getInstance()->getLogger()->error('Could not get the item : ' . $error->getErrorMessage());
+        });
+    }
+
+    private static function stockDequeue(string $xuid, Item $item): void
+    {
+        if (isset(self::$stockQueues[$xuid])) {
+            foreach (self::$stockQueues[$xuid] as $key => $queueItem) { // stockQueuesから削除
+                if ($item->equals($queueItem)) {
+                    unset(self::$stockQueues[$xuid][$key]);
+                }
             }
         }
-        array_push(self::$cache[$xuid], $item);
-//        } else self::addItem($xuid, $item);
+        if (isset(self::$cache[$xuid])) {
+            foreach (self::$cache[$xuid] as $key => $cacheItem) { // cacheにそのアイテムがあれば保存する
+                if ($item->equals($cacheItem)) {
+                    unset(self::$cache[$xuid][$key]);
+                    self::stockEnqueue($xuid, $cacheItem);
+                }
+            }
+        }
+        if (!empty(self::$queues[$xuid]) && empty(self::$stockQueues[$xuid]) && empty(self::$cache[$xuid])) {
+            $func = current(self::$queues[$xuid]);
+            if ($func !== false) $func();
+        }
+    }
+
+    static function add(string $xuid, Item $item): void
+    {
+        if (self::$isBlockCache) {
+            array_push(self::$blockedCache[$xuid], $item);
+        } else {
+            if (empty(self::$cache[$xuid])) {
+                self::$cache[$xuid] = [];
+                self::$task[$xuid] = StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($xuid): void {
+                    if (empty(self::$cache[$xuid])) return;
+                    foreach (self::$cache[$xuid] as $item) self::stockEnqueue($xuid, $item);
+                    unset(self::$cache[$xuid]);
+                    unset(self::$task[$xuid]);
+                }), 5 * 20);
+            }
+            foreach (self::$cache[$xuid] as $key => $cacheItem) {
+                if (!$cacheItem instanceof Item) continue;
+                if ($item->equals($cacheItem)) {
+                    self::$cache[$xuid][$key] = $cacheItem->setCount($cacheItem->getCount() + $item->getCount());
+                    return;
+                }
+            }
+            array_push(self::$cache[$xuid], $item);
+        }
     }
 
     static function reduce(string $xuid, Item $item): void
@@ -70,24 +124,24 @@ class Queue
         self::add($xuid, $item->setCount(-$item->getCount()));
     }
 
-    private static function addItem(string $xuid, Item $item, bool $isTask = false): void
+    static function checkCache(): void
     {
-        if ($item->getCount() === 0) return;
-        self::enqueue($xuid, function () use ($item, $xuid) {
-            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
-                $arrayItem = array_shift($rows);
-                if (isset($arrayItem['count'])) $item->setCount($arrayItem['count'] + $item->getCount());
-                StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($xuid) {
-                    Queue::dequeue($xuid);
-                }, function (SqlError $error) use ($xuid) {
-                    Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
-                    Queue::dequeue($xuid);
-                });
-            }, function (SqlError $error) use ($xuid) {
-                Queue::dequeue($xuid);
-                Server::getInstance()->getLogger()->error('Could not get the item : ' . $error->getErrorMessage());
-            });
-        }, $isTask);
+        foreach (self::$cache as $xuid => $items) {
+            foreach ($items as $item) {
+                if (!$item instanceof Item) continue;
+                $isProcessing = false;
+
+                foreach (self::$stockQueues as $queueItem) {
+                    if ($item->equals($queueItem)) {
+                        $isProcessing = true;
+                        break;
+                    }
+                }
+                if (!$isProcessing) { // もし処理中じゃなかったら保存する
+                    self::stockEnqueue($xuid, $item);
+                }
+            }
+        }
     }
 
     static function isEmpty(?string $xuid = null): bool
@@ -96,8 +150,17 @@ class Queue
             foreach (self::$queues as $queue) {
                 if (!empty($queue)) return false;
             }
+            foreach (self::$stockQueues as $stockQueue) {
+                if (!empty($stockQueue)) return false;
+            }
+            foreach (self::$cache as $cache) {
+                if (!empty($cache)) return false;
+            }
+            foreach (self::$blockedCache as $blockedCache) {
+                if (!empty($blockedCache)) return false;
+            }
         } else {
-            if (isset(self::$queues[$xuid]) && !empty(self::$queues[$xuid])) return false;
+            if (empty(self::$queues[$xuid]) && empty(self::$stockQueues[$xuid]) && empty(self::$cache) && empty(self::$blockedCache)) return false;
         }
         return true;
     }

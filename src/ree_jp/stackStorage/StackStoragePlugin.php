@@ -5,6 +5,7 @@ namespace ree_jp\StackStorage;
 
 use Exception;
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
@@ -24,6 +25,9 @@ class StackStoragePlugin extends PluginBase
     {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getCommandMap()->register('stackstorage', new StackStorageCommand($this));
+        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (int $currentTick): void {
+            Queue::checkCache();
+        }), 20);
         self::$instance = $this;
         GuiAPI::$instance = new GuiAPI();
         StackStorageAPI::$instance = new StackStorageAPI();
