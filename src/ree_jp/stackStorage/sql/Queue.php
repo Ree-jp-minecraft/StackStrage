@@ -41,6 +41,7 @@ class Queue
             $next = current(self::$queues[$xuid]);
             if ($next === false) { // 次のキューがなければ在庫関係の処理を再開
                 self::$isBlockCache = false;
+                if (empty(self::$blockedCache[$xuid])) return;
                 foreach (self::$blockedCache[$xuid] as $cacheItem) {
                     self::add($xuid, $cacheItem);
                 }
