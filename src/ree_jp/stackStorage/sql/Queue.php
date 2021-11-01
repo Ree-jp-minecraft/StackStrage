@@ -131,10 +131,12 @@ class Queue
                 if (!$item instanceof Item) continue;
                 $isProcessing = false;
 
-                foreach (self::$stockQueues as $queueItem) {
-                    if ($item->equals($queueItem)) {
-                        $isProcessing = true;
-                        break;
+                foreach (self::$stockQueues as $queueItems) {
+                    foreach ($queueItems as $queueItem) {
+                        if ($item->equals($queueItem)) {
+                            $isProcessing = true;
+                            break 2;
+                        }
                     }
                 }
                 if (!$isProcessing) { // もし処理中じゃなかったら保存する
