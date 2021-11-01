@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-- queue_improvement
+  - queue_improvement
 projects:
   StackStrage:
     path: ""
