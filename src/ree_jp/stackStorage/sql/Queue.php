@@ -54,13 +54,11 @@ class Queue
         if (empty(self::$stockQueues[$xuid])) {
             self::$queues[$xuid] = [];
         }
-        var_dump("call" . $item->getCount());
         self::$stockQueues[$xuid][] = $item;
         StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($item, $xuid) {
             $arrayItem = array_shift($rows);
             if (isset($arrayItem['count'])) $item->setCount($arrayItem['count'] + $item->getCount());
             StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($item, $xuid) {
-                var_dump($item->getCount());
                 Queue::stockDequeue($xuid, $item);
             }, function (SqlError $error) use ($item, $xuid) {
                 Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
@@ -122,7 +120,7 @@ class Queue
     static function checkCache(): void
     {
         foreach (self::$cache as $xuid => $items) {
-            foreach ($items as $item) {
+            foreach ($items as $key => $item) {
                 if (!$item instanceof Item) continue;
                 $isProcessing = false;
 
@@ -135,7 +133,7 @@ class Queue
                     }
                 }
                 if (!$isProcessing) { // もし処理中じゃなかったら保存する
-                    var_dump("check and go");
+                    unset(self::$cache[$xuid][$key]);
                     self::stockEnqueue($xuid, $item);
                 }
             }
