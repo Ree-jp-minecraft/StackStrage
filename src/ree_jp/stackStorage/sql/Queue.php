@@ -96,6 +96,9 @@ class Queue
     static function add(string $xuid, Item $item): void
     {
         if (self::$isBlockCache) {
+            if (empty(self::$blockedCache[$xuid])) {
+                self::$blockedCache[$xuid] = [];
+            }
             array_push(self::$blockedCache[$xuid], $item);
         } else {
             if (empty(self::$cache[$xuid])) {
