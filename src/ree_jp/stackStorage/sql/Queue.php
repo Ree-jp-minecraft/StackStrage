@@ -4,10 +4,8 @@ namespace ree_jp\stackStorage\sql;
 
 use Closure;
 use pocketmine\item\Item;
-use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use poggit\libasynql\SqlError;
-use ree_jp\StackStorage\StackStoragePlugin;
 
 class Queue
 {
@@ -62,6 +60,7 @@ class Queue
             if (isset($arrayItem['count'])) $item->setCount($arrayItem['count'] + $item->getCount());
             StackStorageHelper::$instance->setItem($xuid, $item, isset($arrayItem['count']), function () use ($item, $xuid) {
                 Queue::stockDequeue($xuid, $item);
+                var_dump($item->getCount());
             }, function (SqlError $error) use ($item, $xuid) {
                 Server::getInstance()->getLogger()->error('Could not set the item : ' . $error->getErrorMessage());
                 Queue::stockDequeue($xuid, $item);
@@ -102,12 +101,6 @@ class Queue
         } else {
             if (empty(self::$cache[$xuid])) {
                 self::$cache[$xuid] = [];
-                self::$task[$xuid] = StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($xuid): void {
-                    if (empty(self::$cache[$xuid])) return;
-                    foreach (self::$cache[$xuid] as $item) self::stockEnqueue($xuid, $item);
-                    unset(self::$cache[$xuid]);
-                    unset(self::$task[$xuid]);
-                }), 5 * 20);
             }
             foreach (self::$cache[$xuid] as $key => $cacheItem) {
                 if (!$cacheItem instanceof Item) continue;
