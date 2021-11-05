@@ -41,10 +41,11 @@ class StackStorage
         $this->p = $p;
         $this->storage = $storage;
         try {
+            if ($p->isClosed()) return;
             $v = $p->up(2);
             $bl1 = Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ());
             $bl2 = Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ());
-            $p->getLevel()->sendBlocks([$p], [$bl1, $bl2]);
+            $p->getLevelNonNull()->sendBlocks([$p], [$bl1, $bl2]);
             $gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $bl1, $bl2, $this->p->getLevel());
             $this->gui = $gui;
             StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
