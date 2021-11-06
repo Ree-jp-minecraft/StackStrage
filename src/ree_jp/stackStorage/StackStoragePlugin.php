@@ -4,6 +4,7 @@
 namespace ree_jp\StackStorage;
 
 use Exception;
+use pocketmine\item\Item;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
@@ -52,9 +53,23 @@ class StackStoragePlugin extends PluginBase
         }
         if ($timer >= 30) {
             $this->getLogger()->critical('The data could not be saved');
-            var_dump(Queue::$queues, Queue::$cache, Queue::$stockQueues, Queue::$blockedCache);
+            $this->showItem(Queue::$queues, "キュー");
+            $this->showItem(Queue::$cache, "キャッシュ");
+            $this->showItem(Queue::$stockQueues, "ストックキュー");
+            $this->showItem(Queue::$blockedCache, "ブロックキュー");
         }
         StackStorageHelper::$instance->close();
+    }
+
+    private function showItem(array $users, string $type): void
+    {
+        foreach ($users as $xuid => $items) {
+            foreach ($items as $item) {
+                if (!$item instanceof Item) continue;
+                var_dump("[" . $xuid . "]" . $item->getName() . "(" . $item->getCount() . ") - " . $type);
+            }
+        }
+        var_dump("---------------------------------------------");
     }
 
     /**
