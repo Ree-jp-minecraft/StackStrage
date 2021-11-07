@@ -40,10 +40,11 @@ class Queue
             if ($next === false) { // 次のキューがなければ在庫関係の処理を再開
                 self::$isBlockCache = false;
                 if (empty(self::$blockedCache[$xuid])) return;
-                foreach (self::$blockedCache[$xuid] as $key => $cacheItem) {
-                    unset(self::$blockedCache[$xuid][$key]);
+                foreach (self::$blockedCache[$xuid] as $cacheItem) {
                     self::add($xuid, $cacheItem);
                 }
+                unset(self::$blockedCache[$xuid]);
+                var_dump(self::$blockedCache[$xuid]);
             } else { // 次のキューがあれば連続で
                 $next();
             }
