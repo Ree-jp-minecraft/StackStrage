@@ -44,7 +44,6 @@ class Queue
                     self::add($xuid, $cacheItem);
                 }
                 unset(self::$blockedCache[$xuid]);
-                var_dump(self::$blockedCache[$xuid]);
             } else { // 次のキューがあれば連続で
                 $next();
             }
