@@ -7,8 +7,10 @@ use Exception;
 use pocketmine\block\Block;
 use pocketmine\block\BlockIds;
 use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 use pocketmine\level\Level;
 use pocketmine\math\Vector3;
+use pocketmine\nbt\tag\IntTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\Player;
 use pocketmine\scheduler\ClosureTask;
@@ -117,10 +119,14 @@ class StackStorage
         }
 
         if (isset($chunk[$this->page])) {
-            $gui->setItem(self::NEXT, Item::get(Item::ARROW)->setCustomName('NextPage'));
+            $item = Item::get(ItemIds::ARROW)->setCustomName('NextPage');
+            $item->setNamedTagEntry(new IntTag("stackstorage_item_value", StackStorage::SYSTEM_ITEM));
+            $gui->setItem(self::NEXT, $item);
         }
         if (isset($chunk[$this->page - 2])) {
-            $gui->setItem(self::BACK, Item::get(Item::ARROW)->setCustomName('BackPage'));
+            $item = Item::get(ItemIds::ARROW)->setCustomName('BackPage');
+            $item->setNamedTagEntry(new IntTag("stackstorage_item_value", StackStorage::SYSTEM_ITEM));
+            $gui->setItem(self::BACK, $item);
         }
 //		$gui->setItem(self::CLOSE, Item::get(Item::BOOK)->setCustomName('ClosePage'));
     }

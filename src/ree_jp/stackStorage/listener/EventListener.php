@@ -92,7 +92,7 @@ class EventListener implements Listener
                         }
                         StackStorageAPI::$instance->refresh($xuid);
                     }
-                    if ($act->getSourceItem()->getId() !== BlockIds::AIR and $act->getSlot() < 45) {
+                    if ($act->getSourceItem()->getId() !== BlockIds::AIR) {
                         try {
                             $item = $act->getSourceItem();
                             if (!StackStorageAPI::$instance->hasCountFromCache($xuid, $item)) throw new Exception('could not reduce items');
