@@ -175,6 +175,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
     {
+        Queue::doCache($xuid);
         StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
             $items = [];
             foreach ($rows as $row) {
