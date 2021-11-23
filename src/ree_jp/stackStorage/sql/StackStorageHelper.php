@@ -27,7 +27,9 @@ class StackStorageHelper implements IStackStorageHelper
             'mysql' => 'mysql.sql',
             'sqlite' => 'sqlite.sql'
         ]);
-        $this->db->executeGeneric('StackStorage.init');
+        $this->db->executeGeneric('StackStorage.init.table');
+        $this->db->executeGeneric('StackStorage.init.function.drop');
+        $this->db->executeGeneric('StackStorage.init.function.create');
     }
 
     /**
