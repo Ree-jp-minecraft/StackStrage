@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS StackStorage
 -- #            { create
 CREATE PROCEDURE add_count(IN _xuid BIGINT, IN _item VARCHAR(99), IN _count INT)
 BEGIN
-    ;
     SET @int_value = NULL;
     SELECT count
     INTO @int_value
