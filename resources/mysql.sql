@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS StackStorage
 -- #        }
 -- #        { function
 -- #            { create
-CREATE PROCEDURE add_count(IN _xuid BIGINT, IN _item VARCHAR(99), IN _count INT)
+CREATE PROCEDURE add_count(IN _xuid BIGINT, IN _item JSON, IN _count INT)
 BEGIN
     SET @int_value = NULL;
     SELECT count
