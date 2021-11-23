@@ -83,7 +83,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function add(string $xuid, Item $item): void
     {
         $item = $this->setStoredNbtTag($item);
-        if ($item->getNamedTagEntry("stackstorage_item_value")->getValue() === StackStorage::SYSTEM_ITEM) return;
+        if ($item->getNamedTagEntry("stackstorage_item_value")?->getValue() === StackStorage::SYSTEM_ITEM) return;
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorage) {
             $has = false;
