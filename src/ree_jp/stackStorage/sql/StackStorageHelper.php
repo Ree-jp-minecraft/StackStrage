@@ -35,7 +35,7 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function getStorage(string $xuid, Closure $func, Closure $failure): void
+    public function getStorage(string $xuid, Closure $func, ?Closure $failure): void
     {
         $this->db->executeSelect('StackStorage.get_all', ['xuid' => $xuid], $func, $failure);
     }
@@ -43,7 +43,7 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function getItem(string $xuid, Item $item, Closure $func, Closure $failure): void
+    public function getItem(string $xuid, Item $item, Closure $func, ?Closure $failure): void
     {
         $jsonItem = json_encode((clone $item)->setCount(0));
         $this->db->executeSelect('StackStorage.get', ['xuid' => $xuid, 'item' => $jsonItem], $func, $failure);
@@ -52,7 +52,7 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function addItem(string $xuid, Item $item, Closure $func, Closure $failure): void
+    public function addItem(string $xuid, Item $item, ?Closure $func, ?Closure $failure): void
     {
         $jsonItem = json_encode((clone $item)->setCount(0));
         $this->db->executeSelect('StackStorage.add', ['xuid' => $xuid, 'item' => $jsonItem, "count" => $item->getCount()], $func, $failure);

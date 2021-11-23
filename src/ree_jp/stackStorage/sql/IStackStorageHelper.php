@@ -24,25 +24,25 @@ interface IStackStorageHelper
     /**
      * @param string $xuid
      * @param Closure $func
-     * @param Closure $failure
+     * @param Closure|null $failure
      */
-    public function getStorage(string $xuid, Closure $func, Closure $failure): void;
+    public function getStorage(string $xuid, Closure $func, ?Closure $failure): void;
 
     /**
      * @param string $xuid
      * @param Item $item
      * @param Closure $func
-     * @param Closure $failure
+     * @param Closure|null $failure
      */
-    public function getItem(string $xuid, Item $item, Closure $func, Closure $failure): void;
+    public function getItem(string $xuid, Item $item, Closure $func, ?Closure $failure): void;
 
     /**
      * @param string $xuid
      * @param Item $item
-     * @param Closure $func
-     * @param Closure $failure
+     * @param Closure|null $func
+     * @param Closure|null $failure
      */
-    public function addItem(string $xuid, Item $item, Closure $func, Closure $failure): void;
+    public function addItem(string $xuid, Item $item, ?Closure $func, ?Closure $failure): void;
 
     /**
      * @param string $xuid
