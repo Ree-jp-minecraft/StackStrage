@@ -41,6 +41,7 @@ class StackStoragePlugin extends PluginBase
                 return;
             }
         }
+        Queue::doAllCache();
         $timer = 0;
         while (!Queue::isEmpty() && $timer < 30) {
             $timer++;

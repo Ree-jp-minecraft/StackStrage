@@ -50,6 +50,15 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
+    public function addItem(string $xuid, Item $item, Closure $func, Closure $failure): void
+    {
+        $jsonItem = json_encode((clone $item)->setCount(0));
+        $this->db->executeSelect('StackStorage.add', ['xuid' => $xuid, 'item' => $jsonItem, "count" => $item->getCount()], $func, $failure);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function setItem(string $xuid, Item $item, bool $isUpdate, Closure $func, Closure $failure): void
     {
         $count = $item->getCount();

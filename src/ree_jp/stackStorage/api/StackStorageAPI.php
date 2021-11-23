@@ -161,18 +161,13 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void
     {
-        Queue::enqueue($xuid, function () use ($item, $failure, $func, $xuid) {
-            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
-                $arrayItem = array_shift($rows);
-                $count = 0;
-                if (isset($arrayItem['count'])) $count = $arrayItem['count'];
-                Queue::dequeue($xuid);
-                $func($count);
-            }, function (SqlError $error) use ($failure, $xuid) {
-                Queue::dequeue($xuid);
-                if (!is_null($failure)) $failure($error);
-            });
-        });
+        Queue::doCache($xuid);
+        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
+            $arrayItem = array_shift($rows);
+            $count = 0;
+            if (isset($arrayItem['count'])) $count = $arrayItem['count'];
+            $func($count);
+        }, $failure);
     }
 
     /**
@@ -180,20 +175,14 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
     {
-        Queue::enqueue($xuid, function () use ($failure, $func, $xuid) {
-            StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
-                $items = [];
-                foreach ($rows as $row) {
-                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
-                    $items[] = $item->setCount($row['count']);
-                }
-                Queue::dequeue($xuid);
-                $func($items);
-            }, function (SqlError $error) use ($failure, $xuid) {
-                Queue::dequeue($xuid);
-                if (!is_null($failure)) $failure($error);
-            });
-        });
+        StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
+            $items = [];
+            foreach ($rows as $row) {
+                $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                $items[] = $item->setCount($row['count']);
+            }
+            $func($items);
+        }, $failure);
     }
 
     /**
