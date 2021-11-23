@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-  - better_mysql
+  - mysql_better
 projects:
   StackStrage:
     path: ""
