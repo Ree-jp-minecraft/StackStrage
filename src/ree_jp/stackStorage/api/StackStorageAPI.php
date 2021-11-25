@@ -55,9 +55,14 @@ class StackStorageAPI implements IStackStorageAPI
         }
 
         $this->getAllItems($xuid, function (array $items) use ($p, $xuid) {
-            $storage = new StackStorage($p, $items);
-            $storage->refresh();
-            $this->storage[$xuid] = $storage;
+            try {
+                $storage = new StackStorage($p, $items);
+                $storage->refresh();
+                $this->storage[$xuid] = $storage;
+            } catch (Exception $ex) {
+                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
+                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage());
+            }
         }, function (SqlError $error) use ($xuid, $p) {
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
