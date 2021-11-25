@@ -33,44 +33,42 @@ class StackStorage
 
     public array $storage;
 
-    private const TITLE = "StackStorage better MYSQL";
+    private const TITLE = 'StackStorage';
     private Player $p;
     private VirtualStackStorage $gui;
     private int $page = 1;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(Player $p, array $storage)
     {
         $this->p = $p;
         $this->storage = $storage;
-        try {
-            $v = $p->up(2);
-            $bl1 = Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ());
-            $bl2 = Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ());
-            $p->getLevel()->sendBlocks([$p], [$bl1, $bl2]);
-            $gui = $this->createGui(self::TITLE, $bl1, $bl2, $this->p->getLevel());
-            $this->gui = $gui;
-            StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
-                new ClosureTask(
-                    function (int $tick) use ($gui): void {
-                        GuiAPI::$instance->sendGui($this->p->getName(), $gui);
-                    }
-                ), 3);
-            StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask( // もし開けなかったら消す
-                new ClosureTask(
-                    function (int $tick) use ($gui): void {
-                        if (!StackStorageAPI::$instance->isOpen($this->p->getName())) {
-                            try {
-                                GuiAPI::$instance->closeGui($this->p->getName());
-                            } catch (Exception $ex) {
-                                if ($ex->getCode() === IGuiAPI::PLAYER_NOT_FOUND | IGuiAPI::GUI_NOT_FOUND) return;
-                            }
+        $v = $p->up(2);
+        $bl1 = Block::get(BlockIds::CHEST)->setComponents($v->getFloorX(), $v->getFloorY(), $v->getFloorZ());
+        $bl2 = Block::get(BlockIds::CHEST)->setComponents($v->west()->getFloorX(), $v->getFloorY(), $v->getFloorZ());
+        $p->getLevel()->sendBlocks([$p], [$bl1, $bl2]);
+        $gui = $this->createGui(self::TITLE . StackStoragePlugin::getVersion(), $bl1, $bl2, $this->p->getLevel());
+        $this->gui = $gui;
+        StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(
+            new ClosureTask(
+                function (int $tick) use ($gui): void {
+                    GuiAPI::$instance->sendGui($this->p->getName(), $gui);
+                }
+            ), 3);
+        StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask( // もし開けなかったら消す
+            new ClosureTask(
+                function (int $tick) use ($gui): void {
+                    if (!StackStorageAPI::$instance->isOpen($this->p->getName())) {
+                        try {
+                            GuiAPI::$instance->closeGui($this->p->getName());
+                        } catch (Exception $ex) {
+                            if ($ex->getCode() === IGuiAPI::PLAYER_NOT_FOUND | IGuiAPI::GUI_NOT_FOUND) return;
                         }
                     }
-                ), 10);
-        } catch (Exception $ex) {
-            $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-            $this->p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage());
-        }
+                }
+            ), 10);
     }
 
     public function refresh()
@@ -153,19 +151,21 @@ class StackStorage
      */
     private function createGui(string $title, Vector3 $bl1, Vector3 $bl2, Level $level): VirtualStackStorage
     {
-        if (is_null($level->getTile($bl1)) && is_null($level->getTile($bl2))) {
-            $bl = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl1));
-            $bl_2 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl2));
-            if ($bl instanceof Chest and $bl_2 instanceof Chest) {
-                $bl->setName($title);
-                $bl_2->setName($title);
-                $bl->pairWith($bl_2);
-                return new VirtualStackStorage($bl, $bl_2);
-            } else {
-                throw new Exception("could not open block");
+        $bl1Id = $level->getBlockIdAt($bl1->x, $bl1->y, $bl1->z);
+        $bl2Id = $level->getBlockIdAt($bl2->x, $bl2->y, $bl2->z);
+        $bl1Tile = $level->getTile($bl1);
+        $bl2Tile = $level->getTile($bl2);
+        if ((is_null($bl1Tile) || ($bl1Id !== BlockIds::CHEST && $bl1Id !== BlockIds::TRAPPED_CHEST && $bl1Tile instanceof Chest)) &&
+            (is_null($bl2Tile) || ($bl2Id !== BlockIds::CHEST && $bl2Id !== BlockIds::TRAPPED_CHEST && $bl2Tile instanceof Chest))) {
+            $tile1 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl1));
+            $tile2 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl2));
+            if ($tile1 instanceof Chest and $tile2 instanceof Chest) {
+                $tile1->setName($title);
+                $tile2->setName($title);
+                $tile1->pairWith($tile2);
+                return new VirtualStackStorage($tile1, $tile2);
             }
-        } else {
-            throw new Exception("could not prepare gui");
         }
+        throw new Exception("could not prepare gui");
     }
 }
