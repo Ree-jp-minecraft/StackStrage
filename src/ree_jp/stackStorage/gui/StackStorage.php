@@ -153,15 +153,19 @@ class StackStorage
      */
     private function createGui(string $title, Vector3 $bl1, Vector3 $bl2, Level $level): VirtualStackStorage
     {
-        $bl = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl1));
-        $bl_2 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl2));
-        if ($bl instanceof Chest and $bl_2 instanceof Chest) {
-            $bl->setName($title);
-            $bl_2->setName($title);
-            $bl->pairWith($bl_2);
-            return new VirtualStackStorage($bl, $bl_2);
+        if (is_null($level->getTile($bl1)) && is_null($level->getTile($bl2))) {
+            $bl = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl1));
+            $bl_2 = Chest::createTile(Tile::CHEST, $level, Chest::createNBT($bl2));
+            if ($bl instanceof Chest and $bl_2 instanceof Chest) {
+                $bl->setName($title);
+                $bl_2->setName($title);
+                $bl->pairWith($bl_2);
+                return new VirtualStackStorage($bl, $bl_2);
+            } else {
+                throw new Exception("could not open block");
+            }
         } else {
-            throw new Exception('could not open block');
+            throw new Exception("could not prepare gui");
         }
     }
 }
