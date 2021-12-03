@@ -5,31 +5,28 @@ namespace ree_jp\stackStorage\api;
 
 
 use Closure;
-use Exception;
 use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
 interface IStackStorageAPI
 {
     const NOT_STACK = 1;
 
     /**
-     * @param string $n
+     * @param string $xuid
      * @return bool
      */
-    public function isOpen(string $n): bool;
+    public function isOpen(string $xuid): bool;
 
     /**
      * @param string $xuid
      * @param Item $item
-     * @throws Exception
      */
     public function add(string $xuid, Item $item): void;
 
     /**
      * @param string $xuid
      * @param Item $item
-     * @throws Exception
      */
     public function remove(string $xuid, Item $item): void;
 
@@ -41,9 +38,9 @@ interface IStackStorageAPI
 
     /**
      * @param Item $item
-     * @return Item
+     * @return Item|null
      */
-    public function setStoredNbtTag(Item $item): Item;
+    public function setStoredNbtTag(Item $item): ?Item;
 
     /**
      * @param string $xuid
