@@ -2,11 +2,13 @@
 build-by-default: true
 branches:
   - master
-  - mysql_better
+  - 4.0
 projects:
   StackStrage:
     path: ""
     libs:
       - src: poggit/libasynql/libasynql
-        version: ^3.3
+        version: ^3.4
+      - src: muqsit/InvMenu/InvMenu
+        version: ^4.0
 ...
