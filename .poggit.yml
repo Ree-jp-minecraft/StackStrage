@@ -11,4 +11,5 @@ projects:
         version: ^3.4
       - src: muqsit/InvMenu/InvMenu
         version: ^4.3
+        branch: "4.0"
 ...
