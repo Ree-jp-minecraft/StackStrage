@@ -4,7 +4,7 @@ api: 4.0.0
 version: 1.2.0
 author: Ree-jp
 website: https://github.com/Ree-jp-minecraft/StackStrage
-description: simple storage
+description: infinity storage
 extensions:
   Core: '>=8.0'
 permissions:
