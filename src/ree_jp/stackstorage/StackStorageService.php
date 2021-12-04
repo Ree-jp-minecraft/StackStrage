@@ -14,6 +14,7 @@ use pocketmine\item\ItemIds;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
 use ree_jp\stackstorage\api\StackStorageAPI;
 
 class StackStorageService
@@ -23,7 +24,7 @@ class StackStorageService
     const CLOSE = 49;
     const SYSTEM_ITEM = 1;
 
-    private int $page = 0;
+    private int $page = 1;
 
     /**
      * @param StackStorageAPI $api
@@ -31,9 +32,8 @@ class StackStorageService
      * @param Player $p
      * @param string $xuid
      * @param Item[] $items
-     * @noinspection PhpPropertyOnlyWrittenInspection
      */
-    public function __construct(private StackStorageAPI $api, private InvMenu $gui, private Player $p, private string $xuid, public array $items)
+    public function __construct(private StackStorageAPI $api, private InvMenu $gui, Player $p, private string $xuid, public array $items)
     {
         $gui->setName("StackStorage" . StackStoragePlugin::getVersion());
         $gui->setInventoryCloseListener(function (Player $p) use ($api): void {
@@ -41,6 +41,7 @@ class StackStorageService
         });
         $gui->setListener(Closure::fromCallable([$this, "onTransaction"]));
         $gui->send($p);
+        $this->refresh();
     }
 
     public function backPage()
@@ -49,7 +50,18 @@ class StackStorageService
         $this->refresh();
     }
 
-    public function refresh(): void
+    public function refresh(bool $force = false): void
+    {
+        if ($force) {
+            $this->refreshForce();
+        } else {
+            StackStoragePlugin::$instance->getScheduler()->scheduleDelayedTask(new ClosureTask(function (): void {
+                $this->refreshForce();
+            }), 3);
+        }
+    }
+
+    private function refreshForce(): void
     {
         $inv = $this->gui->getInventory();
         $inv->clearAll();
@@ -67,9 +79,9 @@ class StackStorageService
                 $storeCount = $item->getCount();
                 $item->setCount($item->getMaxStackSize());
                 $tag = $item->getNamedTag();
-                $tag->setString("stackstorage_store_nbt", base64_encode((new LittleEndianNbtSerializer())->write(new TreeRoot($item->getNamedTag()))));
+                $tag->setString("stackstorage_store_nbt", (new LittleEndianNbtSerializer())->write(new TreeRoot($item->getNamedTag())));
                 $item->setNamedTag($tag);
-                $item->setLore(['Count', $storeCount]);
+                $item->setLore(['Count', "$storeCount"]);
             }
             $inv->setItem($count, $item);
             $count++;

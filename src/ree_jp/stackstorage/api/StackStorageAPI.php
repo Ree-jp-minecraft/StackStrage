@@ -58,9 +58,13 @@ class StackStorageAPI implements IStackStorageAPI
 
         if ($tag->getInt("stackstorage_item_value", 0) === StackStorageService::SYSTEM_ITEM) return null;
 
-        $storeNbt = base64_decode($tag->getString('stackstorage_store_nbt', ""));
-        if ($storeNbt !== "") {
-            return (clone $item)->setNamedTag((new LittleEndianNbtSerializer())->read($storeNbt)->mustGetCompoundTag());
+        $storeNbt = $tag->getString('stackstorage_store_nbt', "no");
+        if ($storeNbt !== "no") {
+            if ($storeNbt === "") {
+                return (clone $item)->setNamedTag(null);
+            } else {
+                return (clone $item)->setNamedTag((new LittleEndianNbtSerializer())->read($storeNbt)->mustGetCompoundTag());
+            }
         }
         return clone $item;
     }
@@ -82,7 +86,9 @@ class StackStorageAPI implements IStackStorageAPI
                     $storage->items[$key] = $storageItem->setCount($item->getCount() + $storageItem->getCount());
                 }
             }
-            if (!$has) $storage->items[] = $item;
+            if (!$has) {
+                $storage->items[] = $item;
+            }
             $storage->refresh();
         }
         Queue::add($xuid, clone $item);
