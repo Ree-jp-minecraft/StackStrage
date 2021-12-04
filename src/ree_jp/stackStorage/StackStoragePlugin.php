@@ -57,6 +57,7 @@ class StackStoragePlugin extends PluginBase
         StackStorageHelper::$instance->close();
     }
 
+
     /**
      * @return string
      */
