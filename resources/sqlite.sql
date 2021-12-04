@@ -1,6 +1,6 @@
 -- #!sqlite
 -- #{ StackStorage
--- #    { init
+-- #    { init.table
 CREATE TABLE IF NOT EXISTS StackStorage
 (
     xuid  BIGINT           NOT NULL,
