@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree_jp\stackStorage\api;
+namespace ree_jp\stackstorage\api;
 
 
 use Closure;
@@ -13,10 +13,10 @@ use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\SqlError;
-use ree_jp\stackStorage\sql\Queue;
-use ree_jp\stackStorage\sql\StackStorageHelper;
-use ree_jp\StackStorage\StackStoragePlugin;
-use ree_jp\StackStorage\StackStorageService;
+use ree_jp\stackstorage\sql\Queue;
+use ree_jp\stackstorage\sql\StackStorageHelper;
+use ree_jp\stackstorage\StackStoragePlugin;
+use ree_jp\stackstorage\StackStorageService;
 
 class StackStorageAPI implements IStackStorageAPI
 {

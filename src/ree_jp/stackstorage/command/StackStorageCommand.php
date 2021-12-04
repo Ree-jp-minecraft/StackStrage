@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree_jp\stackStorage\command;
+namespace ree_jp\stackstorage\command;
 
 
 use pocketmine\command\Command;
@@ -11,7 +11,7 @@ use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginOwned;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
-use ree_jp\stackStorage\api\StackStorageAPI;
+use ree_jp\stackstorage\api\StackStorageAPI;
 
 class StackStorageCommand extends Command implements PluginOwned
 {

@@ -1,15 +1,16 @@
 name: StackStorage
-main: ree_jp\stackStorage\StackStoragePlugin
-api : 3.0.0
+main: ree_jp\stackstorage\StackStoragePlugin
+api: 4.0.0
 version: 1.1.4
 author: Ree-jp
+website: https://github.com/Ree-jp-minecraft/StackStrage
+description: simple storage
 extensions:
   Core: '>=8.0'
 permissions:
-  stackstorage.command:
+  stackstorage.command.my:
+    description: Open your storage
     default: true
-    children:
-      stackstorage.command.my:
-        default: true
-      stackstorage.command.user:
-        default: op
+  stackstorage.command.user:
+    description: Open another user's storage
+    default: op

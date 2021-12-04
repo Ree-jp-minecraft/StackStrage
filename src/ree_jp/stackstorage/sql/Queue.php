@@ -1,6 +1,6 @@
 <?php
 
-namespace ree_jp\stackStorage\sql;
+namespace ree_jp\stackstorage\sql;
 
 use pocketmine\item\Item;
 use pocketmine\Server;

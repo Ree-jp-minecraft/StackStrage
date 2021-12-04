@@ -1,6 +1,6 @@
 <?php
 
-namespace ree_jp\StackStorage;
+namespace ree_jp\stackstorage;
 
 use Closure;
 use Exception;
@@ -14,7 +14,7 @@ use pocketmine\item\ItemIds;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\player\Player;
-use ree_jp\stackStorage\api\StackStorageAPI;
+use ree_jp\stackstorage\api\StackStorageAPI;
 
 class StackStorageService
 {

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree_jp\stackStorage\sql;
+namespace ree_jp\stackstorage\sql;
 
 
 use Closure;

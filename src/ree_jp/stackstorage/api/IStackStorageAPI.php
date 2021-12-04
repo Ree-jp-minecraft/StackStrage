@@ -1,7 +1,7 @@
 <?php
 
 
-namespace ree_jp\stackStorage\api;
+namespace ree_jp\stackstorage\api;
 
 
 use Closure;

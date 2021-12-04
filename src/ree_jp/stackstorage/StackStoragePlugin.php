@@ -1,17 +1,17 @@
 <?php
 
 
-namespace ree_jp\StackStorage;
+namespace ree_jp\stackstorage;
 
 use JetBrains\PhpStorm\Pure;
 use muqsit\invmenu\InvMenuHandler;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
-use ree_jp\stackStorage\api\StackStorageAPI;
-use ree_jp\stackStorage\command\StackStorageCommand;
-use ree_jp\stackStorage\listener\EventListener;
-use ree_jp\stackStorage\sql\Queue;
-use ree_jp\stackStorage\sql\StackStorageHelper;
+use ree_jp\stackstorage\api\StackStorageAPI;
+use ree_jp\stackstorage\command\StackStorageCommand;
+use ree_jp\stackstorage\listener\EventListener;
+use ree_jp\stackstorage\sql\Queue;
+use ree_jp\stackstorage\sql\StackStorageHelper;
 
 class StackStoragePlugin extends PluginBase
 {

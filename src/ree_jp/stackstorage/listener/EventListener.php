@@ -1,11 +1,11 @@
 <?php
 
 
-namespace ree_jp\stackStorage\listener;
+namespace ree_jp\stackstorage\listener;
 
 use pocketmine\event\inventory\InventoryCloseEvent;
 use pocketmine\event\Listener;
-use ree_jp\stackStorage\api\StackStorageAPI;
+use ree_jp\stackstorage\api\StackStorageAPI;
 
 class EventListener implements Listener
 {
