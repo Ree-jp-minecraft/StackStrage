@@ -5,40 +5,34 @@ namespace ree_jp\stackStorage\api;
 
 
 use Closure;
-use Exception;
+use muqsit\invmenu\InvMenu;
+use muqsit\invmenu\type\InvMenuTypeIds;
 use pocketmine\item\Item;
-use pocketmine\Player;
+use pocketmine\nbt\LittleEndianNbtSerializer;
+use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
-use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\SqlError;
-use ree_jp\stackStorage\gui\StackStorage;
 use ree_jp\stackStorage\sql\Queue;
 use ree_jp\stackStorage\sql\StackStorageHelper;
 use ree_jp\StackStorage\StackStoragePlugin;
-use ree_jp\stackStorage\virtual\VirtualStackStorage;
+use ree_jp\StackStorage\StackStorageService;
 
 class StackStorageAPI implements IStackStorageAPI
 {
     static StackStorageAPI $instance;
 
     /**
-     * @var StackStorage[]
+     * @var StackStorageService[]
      */
     private array $storage;
 
     /**
      * @inheritDoc
      */
-    public function isOpen(string $n): bool
+    public function isOpen(string $xuid): bool
     {
-        try {
-            $gui = GuiAPI::$instance->getGui($n);
-            if (!$gui instanceof VirtualStackStorage) return false;
-        } catch (Exception $ex) {
-            if ($ex->getCode() === IGuiAPI::PLAYER_NOT_FOUND | IGuiAPI::GUI_NOT_FOUND) return false;
-        }
-        return true;
+        return $this->getStorage($xuid) instanceof StackStorageService;
     }
 
     /**
@@ -46,23 +40,9 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function sendGui(Player $p, string $xuid): void
     {
-        if ($this->isOpen($p->getName())) try {
-            GuiAPI::$instance->closeGui($p->getName());
-        } catch (Exception $ex) {
-            Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-            Server::getInstance()->getLogger()->error(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage() . $ex->getFile() . $ex->getLine());
-            return;
-        }
-
         $this->getAllItems($xuid, function (array $items) use ($p, $xuid) {
-            try {
-                $storage = new StackStorage($p, $items);
-                $storage->refresh();
-                $this->storage[$xuid] = $storage;
-            } catch (Exception $ex) {
-                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
-                $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $ex->getMessage());
-            }
+            $service = new StackStorageService($this, InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST), $p, $xuid, $items);
+            $this->storage[$xuid] = $service;
         }, function (SqlError $error) use ($xuid, $p) {
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
@@ -72,12 +52,15 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function setStoredNbtTag(Item $item): Item
+    public function setStoredNbtTag(Item $item): ?Item
     {
         $tag = $item->getNamedTag();
-        if ($tag->offsetExists('stackstorage_store_nbt')) {
-            $storeTag = base64_decode($tag->getString('stackstorage_store_nbt'));
-            return (clone $item)->setCompoundTag($storeTag);
+
+        if ($tag->getInt("stackstorage_item_value", 0) === StackStorageService::SYSTEM_ITEM) return null;
+
+        $storeNbt = base64_decode($tag->getString('stackstorage_store_nbt', ""));
+        if ($storeNbt !== "") {
+            return (clone $item)->setNamedTag((new LittleEndianNbtSerializer())->read($storeNbt)->mustGetCompoundTag());
         }
         return clone $item;
     }
@@ -88,18 +71,18 @@ class StackStorageAPI implements IStackStorageAPI
     public function add(string $xuid, Item $item): void
     {
         $item = $this->setStoredNbtTag($item);
-        if ($item->getNamedTagEntry("stackstorage_item_value")?->getValue() === StackStorage::SYSTEM_ITEM) return;
+        if (!$item instanceof Item) return;
+
         $storage = $this->getStorage($xuid);
-        if ($storage instanceof StackStorage) {
+        if ($storage instanceof StackStorageService) {
             $has = false;
-            foreach ($storage->storage as $key => $storageItem) {
-                if (!$storageItem instanceof Item) return;
+            foreach ($storage->items as $key => $storageItem) {
                 if ($storageItem->equals($item)) {
                     $has = true;
-                    $storage->storage[$key] = $storageItem->setCount($item->getCount() + $storageItem->getCount());
+                    $storage->items[$key] = $storageItem->setCount($item->getCount() + $storageItem->getCount());
                 }
             }
-            if (!$has) $storage->storage[] = $item;
+            if (!$has) $storage->items[] = $item;
             $storage->refresh();
         }
         Queue::add($xuid, clone $item);
@@ -111,17 +94,17 @@ class StackStorageAPI implements IStackStorageAPI
     public function remove(string $xuid, Item $item): void
     {
         $item = $this->setStoredNbtTag($item);
-        if ($item->getNamedTagEntry("stackstorage_item_value")?->getValue() === StackStorage::SYSTEM_ITEM) return;
+        if (!$item instanceof Item) return;
+
         $storage = $this->getStorage($xuid);
-        if ($storage instanceof StackStorage) {
-            foreach ($storage->storage as $key => $storageItem) {
-                if (!$storageItem instanceof Item) return;
+        if ($storage instanceof StackStorageService) {
+            foreach ($storage->items as $key => $storageItem) {
                 if ($storageItem->equals($item)) {
                     $count = $storageItem->getCount() - $item->getCount();
                     if ($count > 0) {
-                        $storage->storage[$key] = $storageItem->setCount($count);
+                        $storage->items[$key] = $storageItem->setCount($count);
                     } else {
-                        array_splice($storage->storage, $key, 1);
+                        array_splice($storage->items, $key, 1);
                     }
                     break;
                 }
@@ -134,7 +117,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function refresh(string $xuid): void
     {
         $storage = $this->getStorage($xuid);
-        if ($storage instanceof StackStorage) {
+        if ($storage instanceof StackStorageService) {
             StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($storage): void {
                 $storage->refresh();
             }), 3);
@@ -147,7 +130,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function backPage(string $xuid): void
     {
         $storage = $this->getStorage($xuid);
-        if ($storage instanceof StackStorage) {
+        if ($storage instanceof StackStorageService) {
             $storage->backPage();
         }
     }
@@ -158,7 +141,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function nextPage(string $xuid): void
     {
         $storage = $this->getStorage($xuid);
-        if ($storage instanceof StackStorage) {
+        if ($storage instanceof StackStorageService) {
             $storage->nextPage();
         }
     }
@@ -199,10 +182,11 @@ class StackStorageAPI implements IStackStorageAPI
     public function hasCountFromCache(string $xuid, Item $item): bool
     {
         $item = $this->setStoredNbtTag($item);
+        if (!$item instanceof Item) return false;
+
         $storage = $this->getStorage($xuid);
-        if ($storage instanceof StackStorage) {
-            foreach ($storage->storage as $storageItem) {
-                if (!$storageItem instanceof Item) continue;
+        if ($storage instanceof StackStorageService) {
+            foreach ($storage->items as $storageItem) {
                 if ($storageItem->equals($item)) {
                     return $storageItem->getCount() >= $item->getCount();
                 }
@@ -219,11 +203,7 @@ class StackStorageAPI implements IStackStorageAPI
         if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
     }
 
-    /**
-     * @param string $xuid
-     * @return StackStorage|null
-     */
-    private function getStorage(string $xuid): ?StackStorage
+    private function getStorage(string $xuid): ?StackStorageService
     {
         if (isset($this->storage[$xuid])) return $this->storage[$xuid];
 

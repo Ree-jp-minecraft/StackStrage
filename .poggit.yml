@@ -1,12 +1,14 @@
 --- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/Ree-jp/StackStrage
 build-by-default: true
 branches:
-  - master
-  - mysql_better
+- master
+- 4.0
 projects:
   StackStrage:
     path: ""
     libs:
       - src: poggit/libasynql/libasynql
-        version: ^3.3
+        version: ^3.4
+      - src: muqsit/InvMenu/InvMenu
+        version: ^4.0
 ...

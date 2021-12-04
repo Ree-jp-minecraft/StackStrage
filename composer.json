@@ -1,0 +1,37 @@
+{
+  "name": "ree_jp/stackstorage",
+  "description": "A simple storage",
+  "minimum-stability": "stable",
+  "authors": [
+    {
+      "name": "ree_jp",
+      "email": "mail@ree-jp.net"
+    }
+  ],
+  "require": {
+    "pocketmine/pocketmine-mp": "4.*",
+    "reef_network/libasynql": "3.4.*",
+    "ree_jp_minecraft/invmenu": "4.3.*"
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/pmmp/PocketMine-MP.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/ReefNetwork/libasynql.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/ree-jp-minecraft/InvMenu.git"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "": [
+        "src/"
+      ]
+    }
+  }
+}

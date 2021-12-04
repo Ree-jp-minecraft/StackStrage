@@ -22,7 +22,7 @@ class Queue
                 return;
             }
         }
-        array_push(self::$cache[$xuid], $item);
+        self::$cache[$xuid][] = $item;
     }
 
     static function reduce(string $xuid, Item $item): void

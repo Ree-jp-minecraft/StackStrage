@@ -4,23 +4,22 @@
 namespace ree_jp\stackStorage\command;
 
 
+use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\command\PluginCommand;
-use pocketmine\Player;
+use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
+use pocketmine\plugin\PluginOwned;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\StackStorageAPI;
 
-class StackStorageCommand extends PluginCommand
+class StackStorageCommand extends Command implements PluginOwned
 {
-    public function __construct(Plugin $owner)
+    public function __construct(private Plugin $owner)
     {
-        parent::__construct('stackstorage', $owner);
-        $this->setUsage("/stackstorage <name>");
+        parent::__construct('stackstorage', "simple storage", null, ["st"]);
         $this->setPermission("stackstorage.command.my");
         $this->setPermissionMessage('§cSet permissions from \'plugin.yml\' to \'true\' to allow use without permissions');
-        $this->setAliases(["st"]);
     }
 
     /**
@@ -36,7 +35,7 @@ class StackStorageCommand extends PluginCommand
 
         if (isset($args[0])) {
             if ($sender->hasPermission("stackstorage.command.user")) {
-                $p = Server::getInstance()->getPlayer($args[0]);
+                $p = Server::getInstance()->getPlayerByPrefix($args[0]);
                 if ($p instanceof Player) {
                     StackStorageAPI::$instance->sendGui($sender, $p->getXuid());
                 } else StackStorageAPI::$instance->sendGui($sender, $args[0]);
@@ -46,5 +45,10 @@ class StackStorageCommand extends PluginCommand
         } else {
             StackStorageAPI::$instance->sendGui($sender, $sender->getXuid());
         }
+    }
+
+    public function getOwningPlugin(): Plugin
+    {
+        return $this->owner;
     }
 }
