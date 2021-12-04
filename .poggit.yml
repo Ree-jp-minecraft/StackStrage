@@ -1,7 +1,7 @@
 --- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/Ree-jp/StackStrage
 build-by-default: true
 branches:
-  - master
+- master
 - mysql_better
 projects:
   StackStrage:
