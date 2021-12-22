@@ -5,6 +5,7 @@ namespace ree_jp\stackStorage\sql;
 
 
 use Closure;
+use InvalidArgumentException;
 use pocketmine\item\Item;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
@@ -27,9 +28,12 @@ class StackStorageHelper implements IStackStorageHelper
             'mysql' => 'mysql.sql',
             'sqlite' => 'sqlite.sql'
         ]);
-        $this->db->executeGeneric('StackStorage.init.table');
-        $this->db->executeGeneric('StackStorage.init.function.drop');
-        $this->db->executeGeneric('StackStorage.init.function.create');
+        try {
+            $this->db->executeGeneric('StackStorage.init.table');
+            $this->db->executeGeneric('StackStorage.init.function.create');
+        } catch (InvalidArgumentException $e) {
+//        $this->db->executeGeneric('StackStorage.init.function.drop');
+        }
     }
 
     /**
