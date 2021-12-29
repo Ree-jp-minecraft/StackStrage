@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-  - 3.0
+  - one_chest
 projects:
   StackStrage:
     path: ""
