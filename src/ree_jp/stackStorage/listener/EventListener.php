@@ -9,7 +9,6 @@ use pocketmine\event\inventory\InventoryCloseEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
-use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\IGuiAPI;
@@ -44,9 +43,11 @@ class EventListener implements Listener
         $p = $tr->getSource();
         $n = $p->getName();
         $xuid = $p->getXuid();
+        $isNavigate = false;
 
         foreach ($tr->getActions() as $act) {
             if ($ev->isCancelled()) return;
+
             if ($act instanceof SlotChangeAction) {
                 if ($act->getInventory() instanceof VirtualStackStorage) {
                     if (!StackStorageAPI::$instance->isOpen($n)) {
@@ -58,13 +59,13 @@ class EventListener implements Listener
                         switch ($act->getSlot()) {
                             case StackStorage::BACK:
                                 StackStorageAPI::$instance->backPage($xuid);
-                                $ev->setCancelled();
-                                return;
+                                $isNavigate = true;
+                                break;
 
                             case StackStorage::NEXT:
                                 StackStorageAPI::$instance->nextPage($xuid);
-                                $ev->setCancelled();
-                                return;
+                                $isNavigate = true;
+                                break;
 
 //							crash problem
 //							https://github.com/Ree-jp-minecraft/StackStrage/issues/8
@@ -108,6 +109,9 @@ class EventListener implements Listener
                 }
 
             }
+        }
+        if ($isNavigate) {
+            $ev->setCancelled();
         }
 //        $this->removeLore($p);
     }
