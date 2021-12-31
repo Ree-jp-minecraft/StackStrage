@@ -9,6 +9,7 @@ use pocketmine\event\inventory\InventoryCloseEvent;
 use pocketmine\event\inventory\InventoryTransactionEvent;
 use pocketmine\event\Listener;
 use pocketmine\inventory\transaction\action\SlotChangeAction;
+use pocketmine\Player;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackStorage\api\GuiAPI;
 use ree_jp\stackStorage\api\IGuiAPI;
