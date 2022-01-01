@@ -9,8 +9,7 @@ use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
-use pocketmine\item\ItemIds;
+use pocketmine\item\VanillaItems;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\TreeRoot;
 use pocketmine\player\Player;
@@ -88,11 +87,11 @@ class StackStorageService
         }
 
         if (isset($chunk[$this->page])) {
-            $item = ItemFactory::getInstance()->getItem(ItemIds::ARROW)->setCustomName('NextPage');
+            $item = VanillaItems::ARROW()->setCustomName('NextPage');
             $inv->setItem(self::NEXT, $this->setSystemItem($item));
         }
         if (isset($chunk[$this->page - 2])) {
-            $item = ItemFactory::getInstance()->getItem(ItemIds::ARROW)->setCustomName('BackPage');
+            $item = VanillaItems::ARROW()->setCustomName('BackPage');
             $inv->setItem(self::BACK, $this->setSystemItem($item));
         }
     }
