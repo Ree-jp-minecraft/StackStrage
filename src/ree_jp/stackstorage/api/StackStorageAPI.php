@@ -61,7 +61,7 @@ class StackStorageAPI implements IStackStorageAPI
         $storeNbt = $tag->getString('stackstorage_store_nbt', "no");
         if ($storeNbt !== "no") {
             if ($storeNbt === "") {
-                return (clone $item)->setNamedTag(null);
+                return (clone $item)->clearNamedTag();
             } else {
                 return (clone $item)->setNamedTag((new LittleEndianNbtSerializer())->read($storeNbt)->mustGetCompoundTag());
             }
