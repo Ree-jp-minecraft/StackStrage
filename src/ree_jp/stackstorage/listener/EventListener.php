@@ -15,7 +15,10 @@ class EventListener implements Listener
 
         for ($slot = 0; $slot < $p->getInventory()->getSize(); $slot++) {
             $item = $p->getInventory()->getItem($slot);
-            $p->getInventory()->setItem($slot, StackStorageAPI::$instance->setStoredNbtTag($item));
+            $afterItem = StackStorageAPI::$instance->setStoredNbtTag($item);
+            if (!is_null($afterItem)) {
+                $p->getInventory()->setItem($slot, $afterItem);
+            }
         }
     }
 }

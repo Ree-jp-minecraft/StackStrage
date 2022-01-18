@@ -21,7 +21,7 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function __construct(PluginBase $plugin, string $path)
+    public function __construct(PluginBase $plugin, string $path, bool $isInitFunc)
     {
         $config = new Config($path . 'sql.yml');
         $this->type = strtolower($config->get("database")["type"]);
@@ -30,7 +30,7 @@ class StackStorageHelper implements IStackStorageHelper
             'sqlite' => 'sqlite.sql'
         ]);
         $this->db->executeGeneric('StackStorage.init.table');
-        if ($this->type === "mysql") {
+        if ($this->type === "mysql" && $isInitFunc) {
             $this->db->executeGeneric('StackStorage.init.function.drop');
             $this->db->executeGeneric('StackStorage.init.function.create');
         }

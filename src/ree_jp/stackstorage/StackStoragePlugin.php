@@ -28,7 +28,7 @@ class StackStoragePlugin extends PluginBase
         }), 20);
         self::$instance = $this;
         StackStorageAPI::$instance = new StackStorageAPI();
-        StackStorageHelper::$instance = new StackStorageHelper($this, $this->getDataFolder());
+        StackStorageHelper::$instance = new StackStorageHelper($this, $this->getDataFolder(), $this->getConfig()->get("init_func", true));
 
         if (!InvMenuHandler::isRegistered()) {
             InvMenuHandler::register($this);

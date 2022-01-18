@@ -18,8 +18,9 @@ interface IStackStorageHelper
      * IStackStorageHelper constructor.
      * @param PluginBase $plugin
      * @param string $path
+     * @param bool $isInitFunc
      */
-    public function __construct(PluginBase $plugin, string $path);
+    public function __construct(PluginBase $plugin, string $path, bool $isInitFunc);
 
     /**
      * @param string $xuid
