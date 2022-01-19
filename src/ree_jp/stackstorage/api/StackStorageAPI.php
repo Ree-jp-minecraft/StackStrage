@@ -41,8 +41,10 @@ class StackStorageAPI implements IStackStorageAPI
     public function sendGui(Player $p, string $xuid): void
     {
         $this->getAllItems($xuid, function (array $items) use ($p, $xuid) {
-            $service = new StackStorageService($this, InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST), $p, $xuid, $items);
-            $this->storage[$xuid] = $service;
+            if ($p->isOnline()) {
+                $service = new StackStorageService($this, InvMenu::create(InvMenuTypeIds::TYPE_DOUBLE_CHEST), $p, $xuid, $items);
+                $this->storage[$xuid] = $service;
+            }
         }, function (SqlError $error) use ($xuid, $p) {
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorage error');
             $p->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'Details : ' . $error->getErrorMessage());
@@ -124,7 +126,7 @@ class StackStorageAPI implements IStackStorageAPI
     {
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
-            StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function (int $currentTick) use ($storage): void {
+            StackStoragePlugin::getMain()->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use ($storage): void {
                 $storage->refresh();
             }), 3);
         }
