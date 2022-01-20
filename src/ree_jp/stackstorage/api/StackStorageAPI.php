@@ -9,6 +9,7 @@ use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\type\InvMenuTypeIds;
 use pocketmine\item\Item;
 use pocketmine\nbt\LittleEndianNbtSerializer;
+use pocketmine\nbt\NbtDataException;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\TextFormat;
@@ -65,7 +66,11 @@ class StackStorageAPI implements IStackStorageAPI
             if ($storeNbt === "") {
                 return (clone $item)->clearNamedTag();
             } else {
-                return (clone $item)->setNamedTag((new LittleEndianNbtSerializer())->read($storeNbt)->mustGetCompoundTag());
+                try {
+                    return (clone $item)->setNamedTag((new LittleEndianNbtSerializer())->read($storeNbt)->mustGetCompoundTag());
+                } catch (NbtDataException $e) {
+                    StackStoragePlugin::$instance->getLogger()->critical("An error occurred while loading the saved nbt" . $e->getMessage());
+                }
             }
         }
         return clone $item;
