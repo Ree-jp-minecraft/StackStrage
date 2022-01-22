@@ -12,6 +12,7 @@ use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\NbtDataException;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
+use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use poggit\libasynql\SqlError;
 use ree_jp\stackstorage\sql\Queue;
@@ -214,6 +215,43 @@ class StackStorageAPI implements IStackStorageAPI
     public function closeCache(string $xuid): void
     {
         if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function solutionDuplicate(string $xuid): void
+    {
+        StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid): void {
+            $items = [];
+            $duplicate = [];
+            foreach ($rows as $row) {
+                if (isset($items[$row["item"]])) {
+                    if (!isset($duplicate[$row["item"]])) {
+                        $duplicate[] = $row["item"];
+                    }
+                    $items[$row["item"]] += $row["count"];
+                } else {
+                    $items[$row["item"]] = $row["count"];
+                }
+            }
+            if (!empty($duplicate)) {
+                foreach ($duplicate as $item) {
+                    $count = $items[$item];
+                    Server::getInstance()->getLogger()->notice("solution duplicate($xuid) : " . $item);
+
+                    StackStorageHelper::$instance->setItem($xuid, $item, 0, function () use ($xuid, $item, $count) {
+                        StackStorageHelper::$instance->setItem($xuid, $item, $count, null, function (SqlError $error) use ($xuid, $item, $count) {
+                            Server::getInstance()->getLogger()->warning("solution duplicate compensation($xuid) : " . $error->getErrorMessage());
+                        });
+                    }, function (SqlError $error) use ($xuid, $item, $count) {
+                        Server::getInstance()->getLogger()->warning("solution duplicate init($xuid) : " . $error->getErrorMessage());
+                    });
+                }
+            }
+        }, function (SqlError $error) use ($xuid) {
+            Server::getInstance()->getLogger()->error("Could not solution duplicate : " . $error->getErrorMessage());
+        });
     }
 
     private function getStorage(string $xuid): ?StackStorageService

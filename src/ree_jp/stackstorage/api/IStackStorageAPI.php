@@ -84,4 +84,10 @@ interface IStackStorageAPI
      */
     public function closeCache(string $xuid): void;
 
+    /**
+     * @param string $xuid
+     * @return void
+     */
+    public function solutionDuplicate(string $xuid): void;
+
 }
