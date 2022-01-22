@@ -236,15 +236,17 @@ class StackStorageAPI implements IStackStorageAPI
                 }
             }
             if (!empty($duplicate)) {
-                foreach ($duplicate as $item) {
-                    $count = $items[$item];
-                    Server::getInstance()->getLogger()->notice("solution duplicate($xuid) : " . $item);
+                foreach ($duplicate as $itemJson) {
+                    $count = $items[$itemJson];
+                    $itemInst = Item::jsonDeserialize(json_decode($itemJson, true));
+                    $itemInst->setCount($count);
+                    Server::getInstance()->getLogger()->notice("solution duplicate($xuid) : " . $itemJson);
 
-                    StackStorageHelper::$instance->setItem($xuid, $item, 0, function () use ($xuid, $item, $count) {
-                        StackStorageHelper::$instance->setItem($xuid, $item, $count, null, function (SqlError $error) use ($xuid, $item, $count) {
+                    StackStorageHelper::$instance->setItem($xuid, (clone $itemInst)->setCount(0), true, function () use ($itemInst, $xuid, $count) {
+                        StackStorageHelper::$instance->setItem($xuid, $itemInst, true, null, function (SqlError $error) use ($xuid, $count) {
                             Server::getInstance()->getLogger()->warning("solution duplicate compensation($xuid) : " . $error->getErrorMessage());
                         });
-                    }, function (SqlError $error) use ($xuid, $item, $count) {
+                    }, function (SqlError $error) use ($xuid, $count) {
                         Server::getInstance()->getLogger()->warning("solution duplicate init($xuid) : " . $error->getErrorMessage());
                     });
                 }
