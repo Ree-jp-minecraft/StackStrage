@@ -242,8 +242,10 @@ class StackStorageAPI implements IStackStorageAPI
                     $itemInst->setCount($count);
                     Server::getInstance()->getLogger()->notice("solution duplicate($xuid) : " . $itemJson);
 
-                    StackStorageHelper::$instance->setItem($xuid, (clone $itemInst)->setCount(0), true, function () use ($itemInst, $xuid, $count) {
-                        StackStorageHelper::$instance->setItem($xuid, $itemInst, true, null, function (SqlError $error) use ($xuid, $count) {
+                    StackStorageHelper::$instance->setItem($xuid, (clone $itemInst)->setCount(0), true, function () use ($itemJson, $itemInst, $xuid, $count) {
+                        StackStorageHelper::$instance->setItem($xuid, $itemInst, true, function () use ($itemJson, $xuid): void {
+                            Server::getInstance()->getLogger()->notice("solution duplicate complete($xuid) : " . $itemJson);
+                        }, function (SqlError $error) use ($xuid, $count) {
                             Server::getInstance()->getLogger()->warning("solution duplicate compensation($xuid) : " . $error->getErrorMessage());
                         });
                     }, function (SqlError $error) use ($xuid, $count) {
