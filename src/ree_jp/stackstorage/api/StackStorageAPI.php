@@ -215,6 +215,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function closeCache(string $xuid): void
     {
         if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
+        Queue::doCache($xuid);
     }
 
     /**
