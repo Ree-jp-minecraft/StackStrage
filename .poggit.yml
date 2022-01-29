@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-- tset/dump
+  - tset/dump
 projects:
   StackStrage:
     path: ""
