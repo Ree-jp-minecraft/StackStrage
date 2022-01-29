@@ -58,7 +58,9 @@ class StackStorageHelper implements IStackStorageHelper
      */
     public function addItem(string $xuid, Item $item, ?Closure $func, ?Closure $failure): void
     {
+        var_dump($item);
         $jsonItem = json_encode((clone $item)->setCount(0));
+        var_dump($jsonItem);
         if ($this->type === "mysql") {
             $this->db->executeGeneric('StackStorage.add', ["xuid" => $xuid, "item" => $jsonItem, "count" => $item->getCount()], $func, $failure);
         } elseif ($this->type === "sqlite") {
