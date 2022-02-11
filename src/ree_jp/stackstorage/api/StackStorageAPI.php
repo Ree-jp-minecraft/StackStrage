@@ -228,8 +228,21 @@ class StackStorageAPI implements IStackStorageAPI
             $duplicate = [];
             foreach ($rows as $row) {
                 // アイテムをデコード、エンコードしてNBTがちゃんと同じか検知
-                if ($row["item"] !== json_encode(Item::jsonDeserialize(json_decode($row["item"], true)))) {
-                    var_dump("error");
+                if ($row["item"] !== json_encode(($afterItem = Item::jsonDeserialize(json_decode($row["item"], true))))) {
+                    $afterItem->setCount($row["count"]);
+                    $fuckJson = $row["item"];
+                    Server::getInstance()->getLogger()->notice("inaccurate nbt($xuid) : " . $fuckJson);
+                    StackStorageHelper::$instance->setItem($xuid, $fuckJson, false, function () use ($afterItem, $fuckJson, $xuid): void {
+                        StackStorageHelper::$instance->addItem($xuid, $afterItem, function () use ($fuckJson, $xuid): void {
+                            Server::getInstance()->getLogger()->notice("solution inaccurate data complete($xuid) : " . $fuckJson);
+                            $this->solutionDuplicate($xuid);
+                        }, function (SqlError $error) use ($xuid) {
+                            Server::getInstance()->getLogger()->warning("solution inaccurate data compensation($xuid) : " . $error->getErrorMessage());
+                        });
+                    }, function (SqlError $error) use ($xuid) {
+                        Server::getInstance()->getLogger()->warning("solution inaccurate data init($xuid) : " . $error->getErrorMessage());
+                    });
+                    return;
                 }
 
                 // アイテム重複検知
@@ -242,6 +255,7 @@ class StackStorageAPI implements IStackStorageAPI
                     $items[$row["item"]] = $row["count"];
                 }
             }
+            // 検知された重複を解消
             if (!empty($duplicate)) {
                 foreach ($duplicate as $itemJson) {
                     $count = $items[$itemJson];

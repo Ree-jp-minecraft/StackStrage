@@ -47,12 +47,13 @@ interface IStackStorageHelper
 
     /**
      * @param string $xuid
-     * @param Item $item
+     * @param Item|string $item
      * @param bool $isUpdate
      * @param Closure $func
      * @param Closure $failure
+     * @param int $count
      */
-    public function setItem(string $xuid, Item $item, bool $isUpdate, Closure $func, Closure $failure): void;
+    public function setItem(string $xuid, Item|string $item, bool $isUpdate, Closure $func, Closure $failure, int $count = 0): void;
 
     public function close(): void;
 }
