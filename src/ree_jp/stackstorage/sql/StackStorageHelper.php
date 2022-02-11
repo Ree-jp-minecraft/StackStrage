@@ -87,10 +87,14 @@ class StackStorageHelper implements IStackStorageHelper
     /**
      * @inheritDoc
      */
-    public function setItem(string $xuid, Item $item, bool $isUpdate, Closure $func, Closure $failure): void
+    public function setItem(string $xuid, Item|string $item, bool $isUpdate, Closure $func, Closure $failure, int $count = 0): void
     {
-        $count = $item->getCount();
-        $jsonItem = json_encode((clone $item)->setCount(0));
+        if ($item instanceof Item) {
+            $count = $item->getCount();
+            $jsonItem = json_encode((clone $item)->setCount(0));
+        } else {
+            $jsonItem = $item;
+        }
         if ($count > 0) {
             if ($isUpdate) {
                 $this->db->executeInsert('StackStorage.update', ['xuid' => $xuid, 'item' => $jsonItem, 'count' => $count], $func, $failure);
@@ -100,6 +104,14 @@ class StackStorageHelper implements IStackStorageHelper
         } else {
             $this->db->executeGeneric('StackStorage.delete', ['xuid' => $xuid, 'item' => $jsonItem], $func, $failure);
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUser(Closure $func, ?Closure $failure): void
+    {
+        $this->db->executeSelect('StackStorage.get_user', [], $func, $failure);
     }
 
     public function close(): void

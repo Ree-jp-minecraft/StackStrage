@@ -88,6 +88,6 @@ interface IStackStorageAPI
      * @param string $xuid
      * @return void
      */
-    public function solutionDuplicate(string $xuid): void;
+    public function solutionProblem(string $xuid): void;
 
 }

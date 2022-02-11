@@ -48,6 +48,11 @@ DROP PROCEDURE IF EXISTS add_count;
 -- #                }
 -- #        }
 -- #    }
+-- #    { get_user
+SELECT xuid
+FROM StackStorage
+GROUP BY xuid;
+-- #    }
 -- #    { get_all
 -- #    :xuid int
 SELECT item, count
