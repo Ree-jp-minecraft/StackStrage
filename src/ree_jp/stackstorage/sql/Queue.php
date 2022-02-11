@@ -52,6 +52,7 @@ class Queue
 
     static function doAllCache(): void
     {
+        var_dump(self::$cache);
         foreach (self::$cache as $xuid => $items) {
             self::doCache($xuid);
         }
