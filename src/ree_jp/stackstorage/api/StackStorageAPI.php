@@ -227,6 +227,12 @@ class StackStorageAPI implements IStackStorageAPI
             $items = [];
             $duplicate = [];
             foreach ($rows as $row) {
+                // アイテムをデコード、エンコードしてNBTがちゃんと同じか検知
+                if ($row["item"] !== json_encode(Item::jsonDeserialize(json_decode($row["item"], true)))) {
+                    var_dump("error");
+                }
+
+                // アイテム重複検知
                 if (isset($items[$row["item"]])) {
                     if (!isset($duplicate[$row["item"]])) {
                         $duplicate[] = $row["item"];
