@@ -221,7 +221,7 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function solutionDuplicate(string $xuid): void
+    public function solutionProblem(string $xuid): void
     {
         StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid): void {
             $items = [];
@@ -235,7 +235,7 @@ class StackStorageAPI implements IStackStorageAPI
                     StackStorageHelper::$instance->setItem($xuid, $fuckJson, false, function () use ($afterItem, $fuckJson, $xuid): void {
                         StackStorageHelper::$instance->addItem($xuid, $afterItem, function () use ($fuckJson, $xuid): void {
                             Server::getInstance()->getLogger()->notice("solution inaccurate data complete($xuid) : " . $fuckJson);
-                            $this->solutionDuplicate($xuid);
+                            $this->solutionProblem($xuid);
                         }, function (SqlError $error) use ($xuid) {
                             Server::getInstance()->getLogger()->warning("solution inaccurate data compensation($xuid) : " . $error->getErrorMessage());
                         });

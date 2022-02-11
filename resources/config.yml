@@ -1,2 +1,3 @@
 init_func: true
 cache_interval: 1
+problem_auto_solution: true

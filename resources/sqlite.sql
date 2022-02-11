@@ -8,6 +8,11 @@ CREATE TABLE IF NOT EXISTS StackStorage
     count INTEGER UNSIGNED NOT NULL
 );
 -- #    }
+-- #    { get_user
+SELECT xuid
+FROM StackStorage
+GROUP BY xuid;
+-- #    }
 -- #    { get_all
 -- #    :xuid int
 SELECT item, count

@@ -7,6 +7,7 @@ use JetBrains\PhpStorm\Pure;
 use muqsit\invmenu\InvMenuHandler;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
+use poggit\libasynql\SqlError;
 use ree_jp\stackstorage\api\StackStorageAPI;
 use ree_jp\stackstorage\command\StackStorageCommand;
 use ree_jp\stackstorage\listener\EventListener;
@@ -33,6 +34,16 @@ class StackStoragePlugin extends PluginBase
         if (!InvMenuHandler::isRegistered()) {
             InvMenuHandler::register($this);
         }
+
+        if ($this->getConfig()->get("problem_auto_solution")) {
+            StackStorageHelper::$instance->getUser(function (array $rows) {
+                foreach ($rows as $row) {
+                    StackStorageAPI::$instance->solutionProblem($row["xuid"]);
+                }
+            }, function (SqlError $error) {
+                $this->getLogger()->warning("problem auto solution : " . $error->getErrorMessage());
+            });
+        }
     }
 
     public function onDisable(): void
@@ -40,7 +51,6 @@ class StackStoragePlugin extends PluginBase
         Queue::doAllCache();
         StackStorageHelper::$instance->close();
     }
-
 
     /**
      * @return string

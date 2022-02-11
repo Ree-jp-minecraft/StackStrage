@@ -104,6 +104,14 @@ class StackStorageHelper implements IStackStorageHelper
         }
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getUser(Closure $func, ?Closure $failure): void
+    {
+        $this->db->executeSelect('StackStorage.get_user', [], $func, $failure);
+    }
+
     public function close(): void
     {
         $this->db->waitAll();
