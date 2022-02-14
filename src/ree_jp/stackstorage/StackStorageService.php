@@ -129,9 +129,10 @@ class StackStorageService
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
                 $item = $tran->getOut();
-                if (!StackStorageAPI::$instance->hasCountFromCache($this->xuid, $item)) throw new Exception('could not reduce items');
+                if (!StackStorageAPI::$instance->hasCountFromCache($this->xuid, $item)) throw new Exception("could not reduce items");
                 StackStorageAPI::$instance->remove($this->xuid, $item);
             } catch (Exception $e) {
+                StackStoragePlugin::$instance->getLogger()->logException($e);
                 return $tran->discard();
             }
         }
