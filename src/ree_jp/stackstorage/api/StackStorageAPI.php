@@ -248,6 +248,7 @@ class StackStorageAPI implements IStackStorageAPI
                 if ($afterItem->getId() === ItemIds::DIAMOND_BOOTS) {
                     var_dump($row["item"]);
                     var_dump(json_encode($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true)))));
+                    var_dump($afterItem);
                 }
 
                 // アイテム重複検知
