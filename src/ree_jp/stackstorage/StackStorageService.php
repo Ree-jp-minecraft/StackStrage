@@ -133,11 +133,12 @@ class StackStorageService
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
                 $item = $tran->getOut();
-                if ($item->getId() === ItemIds::DIAMOND_HELMET) {
-                    var_dump("service: " . json_encode($item));
-                }
-                if (!StackStorageAPI::$instance->hasCountFromCache($this->xuid, $item)) throw new Exception("could not reduce items");
-                StackStorageAPI::$instance->remove($this->xuid, $item);
+                $cacheItem = array_chunk($this->items, 45)[$this->page - 1][$tran->getAction()->getSlot()];
+                if (!$item->equals($cacheItem)) throw new Exception("could not reduce items(Item not found)");
+                if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
+
+                // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
+                StackStorageAPI::$instance->remove($this->xuid, $cacheItem);
             } catch (Exception $e) {
                 StackStoragePlugin::$instance->getLogger()->logException($e);
                 return $tran->discard();
