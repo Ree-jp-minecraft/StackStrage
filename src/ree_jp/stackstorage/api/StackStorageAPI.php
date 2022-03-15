@@ -202,7 +202,7 @@ class StackStorageAPI implements IStackStorageAPI
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
             foreach ($storage->items as $storageItem) {
-                if ($storageItem->equals($item)) {
+                if ($storageItem->equals($item) && json_encode($item) === json_encode($storageItem)) {
                     return $storageItem->getCount() >= $item->getCount();
                 }
             }
