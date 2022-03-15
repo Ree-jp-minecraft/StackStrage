@@ -228,7 +228,7 @@ class StackStorageAPI implements IStackStorageAPI
             $duplicate = [];
             foreach ($rows as $row) {
                 // アイテムをデコード、エンコードしてNBTがちゃんと同じか検知
-                if ($row["item"] !== json_encode(($afterItem = Item::jsonDeserialize(json_decode($row["item"], true))))) {
+                if ($row["item"] !== json_encode(($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true)))))) {
                     $afterItem->setCount($row["count"]);
                     $fuckJson = $row["item"];
                     Server::getInstance()->getLogger()->notice("inaccurate nbt($xuid) : " . $fuckJson);
