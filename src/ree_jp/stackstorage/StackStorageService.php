@@ -130,7 +130,7 @@ class StackStorageService
             try {
                 $item = $tran->getOut();
                 $cacheItem = array_chunk($this->items, 45)[$this->page - 1][$tran->getAction()->getSlot()];
-                if (!$item->equals($cacheItem)) throw new Exception("could not reduce items(Item not found)");
+                if (!$item->equals(StackStorageAPI::$instance->setStoredNbtTag($cacheItem))) throw new Exception("could not reduce items(Item not found)");
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
                 // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
