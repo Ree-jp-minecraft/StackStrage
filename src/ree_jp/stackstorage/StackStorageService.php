@@ -134,7 +134,7 @@ class StackStorageService
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
                 // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
-                StackStorageAPI::$instance->remove($this->xuid, $cacheItem);
+                StackStorageAPI::$instance->remove($this->xuid, $cacheItem->setCount($item->getCount()));
             } catch (Exception $e) {
                 StackStoragePlugin::$instance->getLogger()->logException($e);
                 return $tran->discard();
