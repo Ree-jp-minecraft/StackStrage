@@ -14,3 +14,6 @@ permissions:
   stackstorage.command.user:
     description: Open another user's storage
     default: op
+  stackstorage.command.check:
+    description: check storage
+    default: op
