@@ -9,7 +9,6 @@ use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\item\Item;
-use pocketmine\item\ItemIds;
 use pocketmine\item\VanillaItems;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\TreeRoot;
@@ -74,9 +73,6 @@ class StackStorageService
         /** @var Item $item */
         foreach ($chunk[$this->page - 1] as $item) {
             $item = clone $item;
-            if ($item->getId() === ItemIds::DIAMOND_HELMET) {
-                var_dump("ref: " . json_encode($item));
-            }
 
             if ($item->getMaxStackSize() < $item->getCount()) {
                 $storeCount = $item->getCount();

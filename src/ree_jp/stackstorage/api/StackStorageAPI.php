@@ -8,7 +8,6 @@ use Closure;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\type\InvMenuTypeIds;
 use pocketmine\item\Item;
-use pocketmine\item\ItemIds;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\NbtDataException;
 use pocketmine\player\Player;
@@ -244,10 +243,6 @@ class StackStorageAPI implements IStackStorageAPI
                         Server::getInstance()->getLogger()->warning("solution inaccurate data init($xuid) : " . $error->getErrorMessage());
                     });
                     return;
-                }
-                if ($afterItem->getId() === ItemIds::DIAMOND_HELMET) {
-                    var_dump($row["item"]);
-                    var_dump(json_encode($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true)))));
                 }
 
                 // アイテム重複検知
