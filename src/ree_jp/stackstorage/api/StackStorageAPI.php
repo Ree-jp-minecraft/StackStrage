@@ -246,7 +246,7 @@ class StackStorageAPI implements IStackStorageAPI
                     });
                     return;
                 }
-                if ($afterItem->getId() === ItemIds::DIAMOND_BOOTS) {
+                if ($afterItem->getId() === ItemIds::DIAMOND_HELMET) {
                     var_dump($row["item"]);
                     var_dump(json_encode($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true)))));
                     var_dump(json_encode(ItemFactory::getInstance()->get($afterItem->getId(), $afterItem->getMeta(), $afterItem->getCount(), $afterItem->getNamedTag())));
