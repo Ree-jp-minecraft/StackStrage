@@ -129,10 +129,8 @@ class StackStorageService
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
                 $item = $tran->getOut();
-                $cacheItem = array_chunk($this->items, 45)[$this->page - 1][$tran->getAction()->getSlot()];
-                var_dump($item);
-                var_dump(StackStorageAPI::$instance->setStoredNbtTag($cacheItem));
-                if (!$item->equals(StackStorageAPI::$instance->setStoredNbtTag($cacheItem))) throw new Exception("could not reduce items(Item not found)");
+                $cacheItem = StackStorageAPI::$instance->setStoredNbtTag(array_chunk($this->items, 45)[$this->page - 1][$tran->getAction()->getSlot()]);
+                if (!StackStorageAPI::$instance->setStoredNbtTag($item)->equals($cacheItem)) throw new Exception("could not reduce items(Item not found)");
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
                 // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
