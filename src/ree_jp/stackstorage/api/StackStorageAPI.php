@@ -201,7 +201,7 @@ class StackStorageAPI implements IStackStorageAPI
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
             foreach ($storage->items as $storageItem) {
-                if ($storageItem->equals($item)) {
+                if ($storageItem->equals($item) && json_encode($item) === json_encode($storageItem)) {
                     return $storageItem->getCount() >= $item->getCount();
                 }
             }
@@ -228,7 +228,7 @@ class StackStorageAPI implements IStackStorageAPI
             $duplicate = [];
             foreach ($rows as $row) {
                 // アイテムをデコード、エンコードしてNBTがちゃんと同じか検知
-                if ($row["item"] !== json_encode(($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true)))))) {
+                if ($row["item"] !== json_encode($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true))))) {
                     $afterItem->setCount($row["count"]);
                     $fuckJson = $row["item"];
                     Server::getInstance()->getLogger()->notice("inaccurate nbt($xuid) : " . $fuckJson);
