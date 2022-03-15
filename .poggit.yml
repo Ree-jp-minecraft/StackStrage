@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-  - check_nbt
+  - test/check_problem
 projects:
   StackStrage:
     path: ""
