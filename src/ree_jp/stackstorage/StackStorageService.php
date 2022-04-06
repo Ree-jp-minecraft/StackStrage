@@ -9,6 +9,7 @@ use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
 use pocketmine\block\BlockLegacyIds;
 use pocketmine\item\Item;
+use pocketmine\item\ItemIds;
 use pocketmine\item\VanillaItems;
 use pocketmine\nbt\LittleEndianNbtSerializer;
 use pocketmine\nbt\TreeRoot;
@@ -129,6 +130,10 @@ class StackStorageService
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
                 $item = $tran->getOut();
+                if ($item->getId() === ItemIds::SHULKER_BOX) {
+                    $tran->getPlayer()->sendMessage("§cシェルカーボックスはストレージに入れることができません");
+                    return $tran->discard();
+                }
                 $cacheItem = StackStorageAPI::$instance->setStoredNbtTag(array_chunk($this->items, 45)[$this->page - 1][$tran->getAction()->getSlot()]);
                 if (!StackStorageAPI::$instance->setStoredNbtTag($item)->equals($cacheItem)) throw new Exception("could not reduce items(Item not found)");
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
