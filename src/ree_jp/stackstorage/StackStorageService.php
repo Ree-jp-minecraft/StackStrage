@@ -141,6 +141,7 @@ class StackStorageService
                     $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
                 }
                 if (!StackStorageAPI::$instance->setStoredNbtTag($item)->equals($cacheItem)) {
+                    foreach ($this->items as $key => $dumpItem) var_dump($key . ":" . $dumpItem->getVanillaName() . $dumpItem->getCount());
                     var_dump($this->items);
                     var_dump("slot: " . $tran->getAction()->getSlot() . $cacheItem->getVanillaName() . ":" . $cacheItem->getCount());
                     throw new Exception("could not reduce items(Item not found)");
