@@ -140,8 +140,11 @@ class StackStorageService
                 } else {
                     $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
                 }
-                if (!StackStorageAPI::$instance->setStoredNbtTag($item)->equals($cacheItem)) throw new Exception("could not reduce items(Item not found)" .
-                    $cacheItem->getVanillaName() . ":" . $cacheItem->getCount());
+                if (!StackStorageAPI::$instance->setStoredNbtTag($item)->equals($cacheItem)) {
+                    var_dump($this->items);
+                    var_dump("slot: " . $tran->getAction()->getSlot() . $cacheItem->getVanillaName() . ":" . $cacheItem->getCount());
+                    throw new Exception("could not reduce items(Item not found)");
+                }
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
                 // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
