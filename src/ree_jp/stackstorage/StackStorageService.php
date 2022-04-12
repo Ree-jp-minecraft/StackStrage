@@ -128,7 +128,7 @@ class StackStorageService
         }
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
-                $item = $tran->getOut();
+                $item = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
                 $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($this->getCache($item, $tran->getAction()->getSlot()));
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
