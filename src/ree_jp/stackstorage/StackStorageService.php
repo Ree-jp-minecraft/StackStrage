@@ -124,10 +124,12 @@ class StackStorageService
             }
         }
         if ($tran->getIn()->getId() !== BlockLegacyIds::AIR) {
+            var_dump("add " . $tran->getIn()->getVanillaName() . ":" . $tran->getIn()->getCount());
             $this->api->add($this->xuid, $tran->getIn());
         }
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
+                var_dump("remove " . $tran->getOut()->getVanillaName() . ":" . $tran->getOut()->getCount());
                 $item = $tran->getOut();
 //                if ($item->getId() === ItemIds::SHULKER_BOX) {
 //                    $tran->getPlayer()->sendMessage("§cシェルカーボックスはストレージに入れることができません");
