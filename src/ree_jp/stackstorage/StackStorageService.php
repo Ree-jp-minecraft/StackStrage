@@ -124,27 +124,12 @@ class StackStorageService
             }
         }
         if ($tran->getIn()->getId() !== BlockLegacyIds::AIR) {
-            var_dump("add " . $tran->getIn()->getVanillaName() . ":" . $tran->getIn()->getCount());
             $this->api->add($this->xuid, $tran->getIn());
         }
         if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
             try {
-                var_dump("remove " . $tran->getOut()->getVanillaName() . ":" . $tran->getOut()->getCount());
                 $item = $tran->getOut();
-//                if ($item->getId() === ItemIds::SHULKER_BOX) {
-//                    $tran->getPlayer()->sendMessage("§cシェルカーボックスはストレージに入れることができません");
-//                    return $tran->discard();
-//                }
-                if ($tran->getAction()->getSlot() < 45) {
-                    $cacheItem = StackStorageAPI::$instance->setStoredNbtTag(array_chunk($this->items, 45)[$this->page - 1][$tran->getAction()->getSlot()]);
-                } else {
-                    $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
-                }
-                if (!StackStorageAPI::$instance->setStoredNbtTag($item)->equals($cacheItem)) {
-                    foreach ($this->items as $key => $dumpItem) var_dump($key . ":" . $dumpItem->getVanillaName() . $dumpItem->getCount());
-                    var_dump("slot: " . $tran->getAction()->getSlot() . $cacheItem->getVanillaName() . ":" . $cacheItem->getCount());
-                    throw new Exception("could not reduce items(Item not found)");
-                }
+                $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($this->getCache($item, $tran->getAction()->getSlot()));
                 if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
                 // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
@@ -155,5 +140,22 @@ class StackStorageService
             }
         }
         return $tran->continue();
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getCache(Item $item, int $slot): Item
+    {
+        $pageItems = array_chunk($this->items, 45)[$this->page - 1];
+        if (isset($pageItems[$slot]) && $item->equals($pageItems[$slot])) {
+            return $pageItems[$slot];
+        }
+        foreach ($this->items as $storageItem) {
+            if ($item->equals($storageItem)) {
+                return $storageItem;
+            }
+        }
+        throw new Exception("could not reduce items(Item not found)");
     }
 }
