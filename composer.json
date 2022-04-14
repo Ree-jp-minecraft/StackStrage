@@ -10,7 +10,7 @@
   ],
   "require": {
     "pocketmine/pocketmine-mp": "4.*",
-    "reef_network/libasynql": "3.4.*",
+    "sof3/libasynql": "4.0.*",
     "ree_jp_minecraft/invmenu": "4.3.*"
   },
   "repositories": [
@@ -20,7 +20,7 @@
     },
     {
       "type": "git",
-      "url": "https://github.com/ReefNetwork/libasynql.git"
+      "url": "https://github.com/poggit/libasynql.git"
     },
     {
       "type": "git",
