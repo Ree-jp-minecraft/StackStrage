@@ -180,7 +180,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): Generator
     {
-        $test = yield Queue::doCache($xuid);
+        $test = yield from Queue::doCache($xuid);
         var_dump($test);
         StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
             $items = [];
