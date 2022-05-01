@@ -36,7 +36,6 @@ class Queue
     private static function addItem(string $xuid, Item $item, ?Closure $func): void
     {
         if ($item->getCount() === 0) return;
-        sleep(1);
         StackStorageHelper::$instance->addItem($xuid, $item, $func, function (SqlError $error) use ($xuid) {
             Server::getInstance()->getLogger()->error("Could not add the item : " . $error->getErrorMessage());
         });
@@ -55,7 +54,9 @@ class Queue
         $items = self::$cache[$xuid];
         $await = [];
         foreach ($items as $key => $item) {
-            $func = function (): void {
+            var_dump("key start");
+            $func = function () use ($key): void {
+                var_dump("$key end");
             };
             $await[$key] = self::genPromise($xuid, $item);
             unset(self::$cache[$xuid][$key]);
