@@ -48,22 +48,17 @@ class Queue
 
     static function doCache(string $xuid): Generator
     {
-        var_dump("exe");
         if (!isset(self::$cache[$xuid])) return;
 
         $items = self::$cache[$xuid];
         $await = [];
         foreach ($items as $key => $item) {
-            var_dump("key start");
             $func = function () use ($key): void {
-                var_dump("$key end");
             };
             $await[$key] = self::genPromise($xuid, $item);
             unset(self::$cache[$xuid][$key]);
             self::addItem($xuid, $item, $func);
-            var_dump("aaa$key");
         }
-        var_dump($await);
         yield Await::all($await);
     }
 
@@ -71,6 +66,16 @@ class Queue
     {
         foreach (self::$cache as $xuid => $items) {
             yield self::doCache($xuid);
+        }
+    }
+
+    static function clearCache(): void
+    {
+        foreach (self::$cache as $xuid => $items) {
+            foreach ($items as $key => $item) {
+                unset(self::$cache[$xuid][$key]);
+                self::addItem($xuid, $item, null);
+            }
         }
     }
 

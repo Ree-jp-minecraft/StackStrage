@@ -165,15 +165,17 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): Generator
+    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void
     {
-        yield Queue::doCache($xuid);
-        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
-            $arrayItem = array_shift($rows);
-            $count = 0;
-            if (isset($arrayItem['count'])) $count = $arrayItem['count'];
-            $func($count);
-        }, $failure);
+        Await::f2c(function () use ($failure, $func, $item, $xuid): Generator {
+            yield Queue::doCache($xuid);
+            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
+                $arrayItem = array_shift($rows);
+                $count = 0;
+                if (isset($arrayItem['count'])) $count = $arrayItem['count'];
+                $func($count);
+            }, $failure);
+        });
     }
 
     /**
@@ -182,9 +184,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
     {
         Await::f2c(function () use ($failure, $func, $xuid): Generator {
-            var_dump(111111111);
             yield Queue::doCache($xuid);
-            var_dump("aaaaaaaaaaa");
             StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
                 $items = [];
                 foreach ($rows as $row) {
@@ -218,10 +218,9 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function closeCache(string $xuid): Generator
+    public function closeCache(string $xuid): void
     {
         if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
-        yield Queue::doCache($xuid);
     }
 
     /**
