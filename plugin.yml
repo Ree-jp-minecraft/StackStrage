@@ -1,7 +1,7 @@
 name: StackStorage
 main: ree_jp\stackstorage\StackStoragePlugin
 api: 4.0.0
-version: 1.3.2
+version: 1.3.3
 author: Ree-jp
 website: https://github.com/Ree-jp-minecraft/StackStrage
 description: infinity storage
