@@ -71,7 +71,7 @@ interface IStackStorageAPI
      * @param Closure $func
      * @param Closure|null $failure
      */
-    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): Generator;
+    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void;
 
     /**
      * @param string $xuid

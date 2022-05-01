@@ -179,18 +179,21 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): Generator
+    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
     {
-        $test = yield Queue::doCache($xuid) => Await::ONCE;
-        var_dump($test);
-        StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
-            $items = [];
-            foreach ($rows as $row) {
-                $item = Item::jsonDeserialize(json_decode($row['item'], true));
-                $items[] = $item->setCount($row['count']);
-            }
-            $func($items);
-        }, $failure);
+        Await::f2c(function () use ($failure, $func, $xuid): Generator {
+            var_dump(111111111);
+            yield Queue::doCache($xuid);
+            var_dump("aaaaaaaaaaa");
+            StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
+                $items = [];
+                foreach ($rows as $row) {
+                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                    $items[] = $item->setCount($row['count']);
+                }
+                $func($items);
+            }, $failure);
+        });
     }
 
     /**
