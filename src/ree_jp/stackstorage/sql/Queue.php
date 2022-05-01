@@ -44,7 +44,7 @@ class Queue
 
     static function doCache(string $xuid): Generator
     {
-        if (!isset(self::$cache[$xuid])) return;
+        if (!isset(self::$cache[$xuid])) return 1;
 
         $items = self::$cache[$xuid];
         $await = [];
@@ -54,8 +54,11 @@ class Queue
             $await[$key] = yield from Await::promise(fn($func) => self::addItem($xuid, $item, $func));
             unset(self::$cache[$xuid][$key]);
             self::addItem($xuid, $item, $func);
+            var_dump("aaa$key");
         }
+        var_dump($await);
         yield Await::all($await);
+        return 1;
     }
 
     static function doAllCache(): Generator
