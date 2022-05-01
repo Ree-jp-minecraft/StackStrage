@@ -5,6 +5,7 @@ namespace ree_jp\stackstorage\api;
 
 
 use Closure;
+use Generator;
 use pocketmine\item\Item;
 use pocketmine\player\Player;
 
@@ -63,14 +64,14 @@ interface IStackStorageAPI
      * @param Closure $func
      * @param Closure|null $failure
      */
-    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void;
+    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): Generator;
 
     /**
      * @param string $xuid
      * @param Closure $func
      * @param Closure|null $failure
      */
-    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void;
+    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): Generator;
 
     /**
      * @param string $xuid
@@ -82,7 +83,7 @@ interface IStackStorageAPI
     /**
      * @param string $xuid
      */
-    public function closeCache(string $xuid): void;
+    public function closeCache(string $xuid): Generator;
 
     /**
      * @param string $xuid

@@ -43,7 +43,7 @@ class StackStorageService
         $this->refresh();
     }
 
-    public function backPage()
+    public function backPage(): void
     {
         $this->page -= 1;
         $this->refresh();

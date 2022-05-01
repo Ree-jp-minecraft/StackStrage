@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-  - fix/increase_error
+  - test/await
 projects:
   StackStrage:
     path: ""

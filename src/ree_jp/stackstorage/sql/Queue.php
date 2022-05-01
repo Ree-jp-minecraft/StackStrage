@@ -2,9 +2,12 @@
 
 namespace ree_jp\stackstorage\sql;
 
+use Closure;
+use Generator;
 use pocketmine\item\Item;
 use pocketmine\Server;
 use poggit\libasynql\SqlError;
+use SOFe\AwaitGenerator\Await;
 
 class Queue
 {
@@ -30,30 +33,35 @@ class Queue
         self::add($xuid, $item->setCount(-$item->getCount()));
     }
 
-    private static function addItem(string $xuid, Item $item): void
+    private static function addItem(string $xuid, Item $item, ?Closure $func): void
     {
         if ($item->getCount() === 0) return;
-        StackStorageHelper::$instance->addItem($xuid, $item, null, function (SqlError $error) use ($xuid) {
+        sleep(5);
+        StackStorageHelper::$instance->addItem($xuid, $item, $func, function (SqlError $error) use ($xuid) {
             Server::getInstance()->getLogger()->error("Could not add the item : " . $error->getErrorMessage());
         });
     }
 
-    static function doCache(string $xuid): void
+    static function doCache(string $xuid): Generator
     {
         if (!isset(self::$cache[$xuid])) return;
 
-        foreach (self::$cache as $xuid => $items) {
-            foreach ($items as $key => $item) {
-                unset(self::$cache[$xuid][$key]);
-                self::addItem($xuid, $item);
-            }
+        $items = self::$cache[$xuid];
+        $await = [];
+        foreach ($items as $key => $item) {
+            $func = function (): void {
+            };
+            $await[$key] = yield from Await::promise(fn($func) => self::addItem($xuid, $item, $func));
+            unset(self::$cache[$xuid][$key]);
+            self::addItem($xuid, $item, $func);
         }
+        yield Await::all($await);
     }
 
-    static function doAllCache(): void
+    static function doAllCache(): Generator
     {
         foreach (self::$cache as $xuid => $items) {
-            self::doCache($xuid);
+            yield self::doCache($xuid);
         }
     }
 

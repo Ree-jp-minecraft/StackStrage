@@ -5,6 +5,7 @@ namespace ree_jp\stackstorage\api;
 
 
 use Closure;
+use Generator;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\type\InvMenuTypeIds;
 use pocketmine\item\Item;
@@ -163,9 +164,9 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void
+    public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): Generator
     {
-        Queue::doCache($xuid);
+        yield Queue::doCache($xuid);
         StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
             $arrayItem = array_shift($rows);
             $count = 0;
@@ -177,9 +178,9 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
+    public function getAllItems(string $xuid, Closure $func, ?Closure $failure): Generator
     {
-        Queue::doCache($xuid);
+        yield Queue::doCache($xuid);
         StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
             $items = [];
             foreach ($rows as $row) {
@@ -212,10 +213,10 @@ class StackStorageAPI implements IStackStorageAPI
     /**
      * @inheritDoc
      */
-    public function closeCache(string $xuid): void
+    public function closeCache(string $xuid): Generator
     {
         if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
-        Queue::doCache($xuid);
+        yield Queue::doCache($xuid);
     }
 
     /**
