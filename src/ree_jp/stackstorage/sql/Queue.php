@@ -53,11 +53,8 @@ class Queue
         $items = self::$cache[$xuid];
         $await = [];
         foreach ($items as $key => $item) {
-            $func = function () use ($key): void {
-            };
             $await[$key] = self::genPromise($xuid, $item);
             unset(self::$cache[$xuid][$key]);
-            self::addItem($xuid, $item, $func);
         }
         yield Await::all($await);
     }
