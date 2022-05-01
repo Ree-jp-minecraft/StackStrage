@@ -13,6 +13,7 @@ use ree_jp\stackstorage\command\StackStorageCommand;
 use ree_jp\stackstorage\listener\EventListener;
 use ree_jp\stackstorage\sql\Queue;
 use ree_jp\stackstorage\sql\StackStorageHelper;
+use SOFe\AwaitGenerator\Await;
 
 class StackStoragePlugin extends PluginBase
 {
@@ -25,7 +26,7 @@ class StackStoragePlugin extends PluginBase
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getCommandMap()->registerAll('stackstorage', [new StackStorageCommand($this), new StackStorageCheckCommand($this)]);
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (): void {
-            Queue::doAllCache();
+            Await::g2c(Queue::doAllCache());
         }), $this->getConfig()->get("cache_interval") * 20);
         self::$instance = $this;
         StackStorageAPI::$instance = new StackStorageAPI();
@@ -38,7 +39,7 @@ class StackStoragePlugin extends PluginBase
 
     public function onDisable(): void
     {
-        Queue::doAllCache();
+        Queue::clearCache();
         StackStorageHelper::$instance->close();
     }
 

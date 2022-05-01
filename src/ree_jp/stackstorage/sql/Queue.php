@@ -2,9 +2,12 @@
 
 namespace ree_jp\stackstorage\sql;
 
+use Closure;
+use Generator;
 use pocketmine\item\Item;
 use pocketmine\Server;
 use poggit\libasynql\SqlError;
+use SOFe\AwaitGenerator\Await;
 
 class Queue
 {
@@ -30,30 +33,49 @@ class Queue
         self::add($xuid, $item->setCount(-$item->getCount()));
     }
 
-    private static function addItem(string $xuid, Item $item): void
+    private static function addItem(string $xuid, Item $item, ?Closure $func): void
     {
         if ($item->getCount() === 0) return;
-        StackStorageHelper::$instance->addItem($xuid, $item, null, function (SqlError $error) use ($xuid) {
+        StackStorageHelper::$instance->addItem($xuid, $item, $func, function (SqlError $error) use ($xuid) {
             Server::getInstance()->getLogger()->error("Could not add the item : " . $error->getErrorMessage());
         });
     }
 
-    static function doCache(string $xuid): void
+    private static function genPromise(string $xuid, Item $item): Generator
+    {
+        return yield from Await::promise(fn($func) => self::addItem($xuid, $item, $func));
+    }
+
+    static function doCache(string $xuid): Generator
     {
         if (!isset(self::$cache[$xuid])) return;
 
+        $items = self::$cache[$xuid];
+        $await = [];
+        foreach ($items as $key => $item) {
+            $func = function () use ($key): void {
+            };
+            $await[$key] = self::genPromise($xuid, $item);
+            unset(self::$cache[$xuid][$key]);
+            self::addItem($xuid, $item, $func);
+        }
+        yield Await::all($await);
+    }
+
+    static function doAllCache(): Generator
+    {
         foreach (self::$cache as $xuid => $items) {
-            foreach ($items as $key => $item) {
-                unset(self::$cache[$xuid][$key]);
-                self::addItem($xuid, $item);
-            }
+            yield self::doCache($xuid);
         }
     }
 
-    static function doAllCache(): void
+    static function clearCache(): void
     {
         foreach (self::$cache as $xuid => $items) {
-            self::doCache($xuid);
+            foreach ($items as $key => $item) {
+                unset(self::$cache[$xuid][$key]);
+                self::addItem($xuid, $item, null);
+            }
         }
     }
 

@@ -5,6 +5,7 @@ namespace ree_jp\stackstorage\api;
 
 
 use Closure;
+use Generator;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\type\InvMenuTypeIds;
 use pocketmine\item\Item;
@@ -19,6 +20,7 @@ use ree_jp\stackstorage\sql\Queue;
 use ree_jp\stackstorage\sql\StackStorageHelper;
 use ree_jp\stackstorage\StackStoragePlugin;
 use ree_jp\stackstorage\StackStorageService;
+use SOFe\AwaitGenerator\Await;
 
 class StackStorageAPI implements IStackStorageAPI
 {
@@ -165,13 +167,15 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void
     {
-        Queue::doCache($xuid);
-        StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
-            $arrayItem = array_shift($rows);
-            $count = 0;
-            if (isset($arrayItem['count'])) $count = $arrayItem['count'];
-            $func($count);
-        }, $failure);
+        Await::f2c(function () use ($failure, $func, $item, $xuid): Generator {
+            yield Queue::doCache($xuid);
+            StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
+                $arrayItem = array_shift($rows);
+                $count = 0;
+                if (isset($arrayItem['count'])) $count = $arrayItem['count'];
+                $func($count);
+            }, $failure);
+        });
     }
 
     /**
@@ -179,15 +183,17 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
     {
-        Queue::doCache($xuid);
-        StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
-            $items = [];
-            foreach ($rows as $row) {
-                $item = Item::jsonDeserialize(json_decode($row['item'], true));
-                $items[] = $item->setCount($row['count']);
-            }
-            $func($items);
-        }, $failure);
+        Await::f2c(function () use ($failure, $func, $xuid): Generator {
+            yield Queue::doCache($xuid);
+            StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
+                $items = [];
+                foreach ($rows as $row) {
+                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                    $items[] = $item->setCount($row['count']);
+                }
+                $func($items);
+            }, $failure);
+        });
     }
 
     /**
@@ -215,7 +221,6 @@ class StackStorageAPI implements IStackStorageAPI
     public function closeCache(string $xuid): void
     {
         if (isset($this->storage[$xuid])) unset($this->storage[$xuid]);
-        Queue::doCache($xuid);
     }
 
     /**
