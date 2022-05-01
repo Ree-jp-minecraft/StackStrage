@@ -44,7 +44,8 @@ class Queue
 
     static function doCache(string $xuid): Generator
     {
-        if (!isset(self::$cache[$xuid])) return 1;
+        var_dump("exe");
+        if (!isset(self::$cache[$xuid])) return;
 
         $items = self::$cache[$xuid];
         $await = [];
@@ -58,7 +59,6 @@ class Queue
         }
         var_dump($await);
         yield Await::all($await);
-        return 1;
     }
 
     static function doAllCache(): Generator

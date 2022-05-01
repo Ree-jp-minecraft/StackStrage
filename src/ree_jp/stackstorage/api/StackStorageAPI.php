@@ -20,6 +20,7 @@ use ree_jp\stackstorage\sql\Queue;
 use ree_jp\stackstorage\sql\StackStorageHelper;
 use ree_jp\stackstorage\StackStoragePlugin;
 use ree_jp\stackstorage\StackStorageService;
+use SOFe\AwaitGenerator\Await;
 
 class StackStorageAPI implements IStackStorageAPI
 {
@@ -180,7 +181,7 @@ class StackStorageAPI implements IStackStorageAPI
      */
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): Generator
     {
-        $test = yield from Queue::doCache($xuid);
+        $test = yield Queue::doCache($xuid, yield) => Await::ONCE;
         var_dump($test);
         StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
             $items = [];
