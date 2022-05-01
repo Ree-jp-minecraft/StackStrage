@@ -55,7 +55,9 @@ class Queue
             unset(self::$cache[$xuid][$key]);
             self::addItem($xuid, $item, $func);
         }
+        var_dump("a");
         yield Await::all($await);
+        var_dump("bbb");
     }
 
     static function doAllCache(): Generator
