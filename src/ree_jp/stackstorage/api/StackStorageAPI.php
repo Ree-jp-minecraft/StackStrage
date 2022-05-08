@@ -122,7 +122,6 @@ class StackStorageAPI implements IStackStorageAPI
                     } else {
                         array_splice($storage->items, $key, 1);
                     }
-                    break;
                 }
             }
             $storage->refresh();
