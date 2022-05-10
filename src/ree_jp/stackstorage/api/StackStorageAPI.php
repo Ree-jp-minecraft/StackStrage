@@ -90,10 +90,10 @@ class StackStorageAPI implements IStackStorageAPI
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
             $has = false;
-            $json = $item->jsonSerialize()["nbt_b64"] ?: null;
+            $json = $item->jsonSerialize()["nbt_b64"] ?? null;
             foreach ($storage->items as $key => $storageItem) {
                 if ($storageItem->equals($item)) {
-                    $storageJson = $storageItem->jsonSerialize()["nbt_b64"] ?: null;
+                    $storageJson = $storageItem->jsonSerialize()["nbt_b64"] ?? null;
                     if ($json !== $storageJson) continue;
 
                     $has = true;
@@ -118,10 +118,10 @@ class StackStorageAPI implements IStackStorageAPI
 
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
-            $json = $item->jsonSerialize()["nbt_b64"] ?: null;
+            $json = $item->jsonSerialize()["nbt_b64"] ?? null;
             foreach ($storage->items as $key => $storageItem) {
                 if ($storageItem->equals($item)) {
-                    $storageJson = $storageItem->jsonSerialize()["nbt_b64"] ?: null;
+                    $storageJson = $storageItem->jsonSerialize()["nbt_b64"] ?? null;
                     if ($json !== $storageJson) continue;
 
                     $count = $storageItem->getCount() - $item->getCount();
