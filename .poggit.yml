@@ -2,7 +2,7 @@
 build-by-default: true
 branches:
   - master
-  - fix/duplicate_cache
+  - test/1.19.50
 projects:
   StackStrage:
     path: ""
