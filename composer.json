@@ -12,7 +12,7 @@
     "pocketmine/pocketmine-mp": "4.*",
     "sof3/libasynql": "4.0.*",
     "sof3/await-generator": "3.4.*",
-    "ree_jp_minecraft/invmenu": "4.3.*"
+    "ree_jp_minecraft/invmenu": "4.4.*"
   },
   "repositories": [
     {
