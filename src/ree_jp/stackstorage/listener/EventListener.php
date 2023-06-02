@@ -14,19 +14,19 @@ use SOFe\AwaitGenerator\Await;
 
 class EventListener implements Listener
 {
-    public function onLogin(PlayerLoginEvent $ev)
+    public function onLogin(PlayerLoginEvent $ev): void
     {
         if (StackStoragePlugin::$instance->getConfig()->get("problem_auto_solution")) {
             StackStorageAPI::$instance->solutionProblem($ev->getPlayer()->getXuid());
         }
     }
 
-    public function onQuit(PlayerQuitEvent $ev)
+    public function onQuit(PlayerQuitEvent $ev): void
     {
         Await::g2c(Queue::doCache($ev->getPlayer()->getXuid()));
     }
 
-    public function onClose(InventoryCloseEvent $ev)
+    public function onClose(InventoryCloseEvent $ev): void
     {
         $p = $ev->getPlayer();
 

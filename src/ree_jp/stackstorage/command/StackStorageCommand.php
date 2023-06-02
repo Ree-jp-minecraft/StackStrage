@@ -15,7 +15,7 @@ use ree_jp\stackstorage\api\StackStorageAPI;
 
 class StackStorageCommand extends Command implements PluginOwned
 {
-    public function __construct(private Plugin $owner)
+    public function __construct(private readonly Plugin $owner)
     {
         parent::__construct('stackstorage', "simple storage", null, ["st"]);
         $this->setPermission("stackstorage.command.my");
@@ -25,7 +25,7 @@ class StackStorageCommand extends Command implements PluginOwned
     /**
      * @inheritDoc
      */
-    public function execute(CommandSender $sender, string $commandLabel, array $args)
+    public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
         if (!$sender instanceof Player) {
             $sender->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorageCommand error');
@@ -35,7 +35,7 @@ class StackStorageCommand extends Command implements PluginOwned
 
         if (isset($args[0])) {
             if ($sender->hasPermission("stackstorage.command.user")) {
-                $p = Server::getInstance()->getPlayerByPrefix($args[0]);
+                $p = Server::getInstance()->getPlayerExact($args[0]);
                 if ($p instanceof Player) {
                     StackStorageAPI::$instance->sendGui($sender, $p->getXuid());
                 } else StackStorageAPI::$instance->sendGui($sender, $args[0]);

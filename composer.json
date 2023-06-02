@@ -8,11 +8,11 @@
       "email": "mail@ree-jp.net"
     }
   ],
-  "require": {
-    "pocketmine/pocketmine-mp": "4.*",
-    "sof3/libasynql": "4.0.*",
-    "sof3/await-generator": "3.4.*",
-    "ree_jp_minecraft/invmenu": "4.4.*"
+  "require-dev": {
+    "pocketmine/pocketmine-mp": "5.*",
+    "sof3/libasynql": "dev-pm5",
+    "sof3/await-generator": "3.*",
+    "muqsit/invmenu": "4.*"
   },
   "repositories": [
     {
@@ -29,7 +29,7 @@
     },
     {
       "type": "git",
-      "url": "https://github.com/ree-jp-minecraft/InvMenu.git"
+      "url": "https://github.com/Muqsit/InvMenu.git"
     }
   ],
   "autoload": {

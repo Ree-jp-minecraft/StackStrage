@@ -12,7 +12,7 @@ use ree_jp\stackstorage\sql\StackStorageHelper;
 
 class StackStorageCheckCommand extends Command implements PluginOwned
 {
-    public function __construct(private Plugin $owner)
+    public function __construct(private readonly Plugin $owner)
     {
         parent::__construct("stackstoragecheck", "storage checker", null, ["st-check"]);
         $this->setPermission("stackstorage.command.check");
@@ -22,7 +22,7 @@ class StackStorageCheckCommand extends Command implements PluginOwned
     /**
      * @inheritDoc
      */
-    public function execute(CommandSender $sender, string $commandLabel, array $args)
+    public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
         if (!$this->testPermission($sender)) return;
 

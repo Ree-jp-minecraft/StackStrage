@@ -175,7 +175,7 @@ class StackStorageAPI implements IStackStorageAPI
     public function getCount(string $xuid, Item $item, Closure $func, ?Closure $failure): void
     {
         Await::f2c(function () use ($failure, $func, $item, $xuid): Generator {
-            yield Queue::doCache($xuid);
+            yield from Queue::doCache($xuid);
             StackStorageHelper::$instance->getItem($xuid, $item, function (array $rows) use ($xuid, $func) {
                 $arrayItem = array_shift($rows);
                 $count = 0;
@@ -191,11 +191,11 @@ class StackStorageAPI implements IStackStorageAPI
     public function getAllItems(string $xuid, Closure $func, ?Closure $failure): void
     {
         Await::f2c(function () use ($failure, $func, $xuid): Generator {
-            yield Queue::doCache($xuid);
+            yield from Queue::doCache($xuid);
             StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
                 $items = [];
                 foreach ($rows as $row) {
-                    $item = Item::jsonDeserialize(json_decode($row['item'], true));
+                    $item = Item::legacyJsonDeserialize(json_decode($row['item'], true));
                     $items[] = $item->setCount($row['count']);
                 }
                 $func($items);
@@ -240,7 +240,7 @@ class StackStorageAPI implements IStackStorageAPI
             $duplicate = [];
             foreach ($rows as $row) {
                 // アイテムをデコード、エンコードしてNBTがちゃんと同じか検知
-                if ($row["item"] !== json_encode($afterItem = $this->setStoredNbtTag(Item::jsonDeserialize(json_decode($row["item"], true))))) {
+                if ($row["item"] !== json_encode($afterItem = $this->setStoredNbtTag(Item::legacyJsonDeserialize(json_decode($row["item"], true))))) {
                     $afterItem->setCount($row["count"]);
                     $fuckJson = $row["item"];
                     Server::getInstance()->getLogger()->notice("inaccurate nbt($xuid) : " . $fuckJson);

@@ -2,12 +2,11 @@
 
 namespace ree_jp\stackstorage;
 
-use Closure;
 use Exception;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
-use pocketmine\block\BlockLegacyIds;
+use pocketmine\block\BlockTypeIds;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\nbt\LittleEndianNbtSerializer;
@@ -32,13 +31,13 @@ class StackStorageService
      * @param string $xuid
      * @param Item[] $items
      */
-    public function __construct(private StackStorageAPI $api, private InvMenu $gui, Player $p, private string $xuid, public array $items)
+    public function __construct(private readonly StackStorageAPI $api, private readonly InvMenu $gui, Player $p, private readonly string $xuid, public array $items)
     {
         $gui->setName("StackStorage" . StackStoragePlugin::getVersion());
         $gui->setInventoryCloseListener(function (Player $p) use ($api): void {
             $api->closeCache($p->getXuid());
         });
-        $gui->setListener(Closure::fromCallable([$this, "onTransaction"]));
+        $gui->setListener($this->onTransaction(...));
         $gui->send($p);
         $this->refresh();
     }
@@ -104,7 +103,7 @@ class StackStorageService
         return $item;
     }
 
-    public function nextPage()
+    public function nextPage(): void
     {
         $this->page += 1;
         $this->refresh();
@@ -112,7 +111,7 @@ class StackStorageService
 
     private function onTransaction(InvMenuTransaction $tran): InvMenuTransactionResult
     {
-        if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
+        if ($tran->getOut()->getTypeId() !== BlockTypeIds::AIR) {
             switch ($tran->getAction()->getSlot()) {
                 case self::BACK:
                     $this->api->backPage($this->xuid);
@@ -123,10 +122,10 @@ class StackStorageService
                     return $tran->discard();
             }
         }
-        if ($tran->getIn()->getId() !== BlockLegacyIds::AIR) {
+        if ($tran->getIn()->getTypeId() !== BlockTypeIds::AIR) {
             $this->api->add($this->xuid, $tran->getIn());
         }
-        if ($tran->getOut()->getId() !== BlockLegacyIds::AIR) {
+        if ($tran->getOut()->getTypeId() !== BlockTypeIds::AIR) {
             try {
                 $item = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
                 $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($this->getCache($item, $tran->getAction()->getSlot()));

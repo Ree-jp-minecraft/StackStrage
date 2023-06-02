@@ -56,13 +56,13 @@ class Queue
             $await[$key] = self::genPromise($xuid, $item);
             unset(self::$cache[$xuid][$key]);
         }
-        yield Await::all($await);
+        yield from Await::all($await);
     }
 
     static function doAllCache(): Generator
     {
         foreach (self::$cache as $xuid => $items) {
-            yield self::doCache($xuid);
+            yield from self::doCache($xuid);
         }
     }
 
