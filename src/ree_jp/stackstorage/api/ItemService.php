@@ -18,14 +18,14 @@ use UnhandledMatchError;
 
 class ItemService
 {
-    public function nbtToJson(CompoundTag|ListTag $tags): array|false
+    static function nbtToJson(CompoundTag|ListTag $tags): array|false
     {
         $result = [];
         foreach ($tags as $key => $tag) {
             try {
                 $result[$key] = match (true) {
-                    $tag instanceof CompoundTag => ["nbt_tag" => NBTTag::Compound, "value" => $this->nbtToJson($tag)],
-                    $tag instanceof ListTag => ["nbt_tag" => NBTTag::List, "value" => $this->nbtToJson($tag)],
+                    $tag instanceof CompoundTag => ["nbt_tag" => NBTTag::Compound, "value" => self::nbtToJson($tag)],
+                    $tag instanceof ListTag => ["nbt_tag" => NBTTag::List, "value" => self::nbtToJson($tag)],
                     $tag instanceof ByteArrayTag => ["nbt_tag" => NBTTag::ByteArray, "value" => $tag->getValue()],
                     $tag instanceof ByteTag => ["nbt_tag" => NBTTag::Byte, "value" => $tag->getValue()],
                     $tag instanceof DoubleTag => ["nbt_tag" => NBTTag::Double, "value" => $tag->getValue()],
@@ -48,14 +48,14 @@ class ItemService
      * @param array $tags
      * @return Tag[]|false
      */
-    public function jsonToNbt(array $tags): array|false
+    static function jsonToNbt(array $tags): array|false
     {
         $result = [];
         foreach ($tags as $key => $array) {
             try {
                 $tag = match ($array["nbt_tag"]) {
-                    NBTTag::Compound->value => $this->toCompoundTag($this->jsonToNbt($array["value"])),
-                    NBTTag::List->value => new ListTag($this->jsonToNbt($array["value"])),
+                    NBTTag::Compound->value => self::toCompoundTag(self::jsonToNbt($array["value"])),
+                    NBTTag::List->value => new ListTag(self::jsonToNbt($array["value"])),
                     NBTTag::ByteArray->value => new ByteArrayTag($array["value"]),
                     NBTTag::Byte->value => new ByteTag($array["value"]),
                     NBTTag::Double->value => new DoubleTag($array["value"]),
@@ -75,7 +75,7 @@ class ItemService
         return $result;
     }
 
-    public function toCompoundTag(array $array): CompoundTag
+    static function toCompoundTag(array $array): CompoundTag
     {
         $compound = new CompoundTag();
         foreach ($array as $key => $tag) {
