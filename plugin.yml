@@ -1,12 +1,12 @@
 name: StackStorage
 main: ree_jp\stackstorage\StackStoragePlugin
-api: 4.0.0
-version: 1.3.3
+api: 5.0.0
+version: 2.0.0
 author: Ree-jp
 website: https://github.com/Ree-jp-minecraft/StackStrage
 description: infinity storage
 extensions:
-  Core: '>=8.0'
+  Core: '>=8.1'
 permissions:
   stackstorage.command.my:
     description: Open your storage
