@@ -2,6 +2,7 @@
 
 namespace ree_jp\stackstorage\api;
 
+use pocketmine\item\Item;
 use pocketmine\nbt\tag\ByteArrayTag;
 use pocketmine\nbt\tag\ByteTag;
 use pocketmine\nbt\tag\CompoundTag;
@@ -14,10 +15,25 @@ use pocketmine\nbt\tag\LongTag;
 use pocketmine\nbt\tag\ShortTag;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\nbt\tag\Tag;
+use ree_jp\stackstorage\StackStoragePlugin;
 use UnhandledMatchError;
 
 class ItemService
 {
+    static function itemToJson(Item $item): string
+    {
+        $cloneItem = (clone $item)->setCount(1);
+        $itemNbt = $cloneItem->nbtSerialize();
+        return json_encode(self::nbtToJson($itemNbt));
+    }
+
+    static function jsonToItem(string $json): Item
+    {
+        $itemNbt = self::jsonToNbt(json_decode($json, true));
+        $tag = self::toCompoundTag($itemNbt);
+        return Item::nbtDeserialize($tag);
+    }
+
     static function nbtToJson(CompoundTag|ListTag $tags): array|false
     {
         $result = [];
@@ -37,7 +53,8 @@ class ItemService
                     $tag instanceof StringTag => ["nbt_tag" => NBTTag::String, "value" => $tag->getValue()],
                 };
             } catch (UnhandledMatchError $error) {
-                var_dump($error->getMessage());
+                StackStoragePlugin::$instance->getLogger()->error($error->getMessage());
+                StackStoragePlugin::$instance->getLogger()->error($error->getFile());
                 return false;
             }
         }
@@ -68,7 +85,8 @@ class ItemService
                 };
                 $result[$key] = $tag;
             } catch (UnhandledMatchError $error) {
-                var_dump($error->getMessage());
+                StackStoragePlugin::$instance->getLogger()->error($error->getMessage());
+                StackStoragePlugin::$instance->getLogger()->error($error->getFile());
                 return false;
             }
         }
