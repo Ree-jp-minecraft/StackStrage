@@ -2,16 +2,15 @@
 build-by-default: true
 branches:
   - master
-  - fix/duplicate_cache
 projects:
   StackStrage:
     path: ""
     libs:
       - src: poggit/libasynql/libasynql
-        version: ^3.4
+        version: ^4.1
       - src: SOF3/await-generator/await-generator
-        version: ^3.4
+        version: ^3.5
       - src: muqsit/InvMenu/InvMenu
-        version: ^4.4
+        version: ^4.5
         branch: "4.0"
 ...
