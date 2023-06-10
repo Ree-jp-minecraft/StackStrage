@@ -3,6 +3,11 @@
 Add endless storage that is simple and easy to use  
 Please check the Feature tab for details.
 
+## Warning
+
+Versions prior to 2.0 require data migration  
+See Migrate-V2 for how to migrate.
+
 # Setup
 
 ## Config
@@ -18,7 +23,7 @@ init_func: true
 # You can specify the interval to save the cache in seconds
 cache_interval: 1
 
-# Checks storage data when the server starts
+# Checks storage data when the player login
 problem_auto_solution: true
 ```
 
@@ -98,3 +103,11 @@ https://blog.ree-jp.net/stack-storage-api/
 # Note
 
 - Data of versions below 0.1.0 cannot be inherited
+
+# Migrate-V2
+
+※Be sure to back up your data before proceeding
+
+Versions prior to 2.0 require data migration  
+To migrate data type the following command from the server console`stackstorage migrate-v2`
+
