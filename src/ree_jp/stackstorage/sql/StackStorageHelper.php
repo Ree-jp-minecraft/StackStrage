@@ -25,8 +25,8 @@ class StackStorageHelper implements IStackStorageHelper
     public function __construct(PluginBase $plugin, string $path, bool $isInitFunc)
     {
         $config = new Config($path . 'sql.yml');
-        $this->type = strtolower($config->get("database")["type"]);
-        $this->db = libasynql::create($plugin, $config->get('database'), [
+        $this->type = strtolower($config->get("database", ["type" => "sqlite"])["type"]);
+        $this->db = libasynql::create($plugin, $config->get("database", ["type" => "sqlite", "sqlite" => ["file" => "data.sqlite"]]), [
             'mysql' => 'mysql.sql',
             'sqlite' => 'sqlite.sql'
         ]);
