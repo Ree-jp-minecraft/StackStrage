@@ -6,12 +6,16 @@ namespace ree_jp\stackstorage\command;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\console\ConsoleCommandSender;
 use pocketmine\player\Player;
 use pocketmine\plugin\Plugin;
 use pocketmine\plugin\PluginOwned;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\TextFormat;
 use ree_jp\stackstorage\api\StackStorageAPI;
+use ree_jp\stackstorage\migrate\MigrateV2;
+use ree_jp\stackstorage\StackStoragePlugin;
 
 class StackStorageCommand extends Command implements PluginOwned
 {
@@ -28,7 +32,25 @@ class StackStorageCommand extends Command implements PluginOwned
     public function execute(CommandSender $sender, string $commandLabel, array $args): void
     {
         if (!$sender instanceof Player) {
-            $sender->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorageCommand error');
+            if (!$sender instanceof ConsoleCommandSender) {
+                $sender->sendMessage(TextFormat::RED . '>> ' . TextFormat::RESET . 'StackStorageCommand error');
+                return;
+            }
+
+            if (isset($args[0])) {
+                switch ($args[0]) {
+                    case "migrate-v2":
+                        StackStoragePlugin::$instance->getLogger()->warning("Be sure to back up your data! \n Starts in 5 seconds");
+                        StackStoragePlugin::$instance->getScheduler()->scheduleDelayedTask(new ClosureTask(function (): void {
+                            MigrateV2::migrate();
+                        }), 20 * 5);
+                        break;
+                    default:
+                        $sender->sendMessage("You can use this command to migrate your Stack Storage data\n"
+                            . "Please back up your data before migrating data.\n"
+                            . "See the Stack Storage poggit page for detailed instructions.");
+                }
+            }
             return;
         }
         if (!$this->testPermission($sender)) return;
