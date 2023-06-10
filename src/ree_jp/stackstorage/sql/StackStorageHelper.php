@@ -10,6 +10,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
+use ree_jp\stackstorage\api\ItemService;
 
 class StackStorageHelper implements IStackStorageHelper
 {
@@ -49,7 +50,7 @@ class StackStorageHelper implements IStackStorageHelper
      */
     public function getItem(string $xuid, Item $item, Closure $func, ?Closure $failure): void
     {
-        $jsonItem = json_encode((clone $item)->setCount(0));
+        $jsonItem = ItemService::itemToJson($item);
         $this->db->executeSelect('StackStorage.get', ['xuid' => $xuid, 'item' => $jsonItem], $func, $failure);
     }
 
@@ -58,7 +59,7 @@ class StackStorageHelper implements IStackStorageHelper
      */
     public function addItem(string $xuid, Item $item, ?Closure $func, ?Closure $failure): void
     {
-        $jsonItem = json_encode((clone $item)->setCount(0));
+        $jsonItem = ItemService::itemToJson($item);
         if ($this->type === "mysql") {
             $this->db->executeGeneric('StackStorage.add', ["xuid" => $xuid, "item" => $jsonItem, "count" => $item->getCount()], $func, $failure);
         } elseif ($this->type === "sqlite") {
@@ -89,7 +90,7 @@ class StackStorageHelper implements IStackStorageHelper
     {
         if ($item instanceof Item) {
             $count = $item->getCount();
-            $jsonItem = json_encode((clone $item)->setCount(0));
+            $jsonItem = ItemService::itemToJson($item);
         } else {
             $jsonItem = $item;
         }

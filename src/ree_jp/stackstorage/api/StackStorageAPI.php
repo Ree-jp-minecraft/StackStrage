@@ -90,10 +90,10 @@ class StackStorageAPI implements IStackStorageAPI
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
             $has = false;
-            $json = $item->jsonSerialize()["nbt_b64"] ?? null;
+            $json = ItemService::itemToJson($item);
             foreach ($storage->items as $key => $storageItem) {
                 if ($storageItem->equals($item)) {
-                    $storageJson = $storageItem->jsonSerialize()["nbt_b64"] ?? null;
+                    $storageJson = ItemService::itemToJson($storageItem);
                     if ($json !== $storageJson) continue;
 
                     $has = true;
@@ -118,10 +118,10 @@ class StackStorageAPI implements IStackStorageAPI
 
         $storage = $this->getStorage($xuid);
         if ($storage instanceof StackStorageService) {
-            $json = $item->jsonSerialize()["nbt_b64"] ?? null;
+            $json = ItemService::itemToJson($item);
             foreach ($storage->items as $key => $storageItem) {
                 if ($storageItem->equals($item)) {
-                    $storageJson = $storageItem->jsonSerialize()["nbt_b64"] ?? null;
+                    $storageJson = ItemService::itemToJson($storageItem);
                     if ($json !== $storageJson) continue;
 
                     $count = $storageItem->getCount() - $item->getCount();
@@ -195,7 +195,7 @@ class StackStorageAPI implements IStackStorageAPI
             StackStorageHelper::$instance->getStorage($xuid, function (array $rows) use ($xuid, $func) {
                 $items = [];
                 foreach ($rows as $row) {
-                    $item = Item::legacyJsonDeserialize(json_decode($row['item'], true));
+                    $item = ItemService::jsonToItem($row['item']);
                     $items[] = $item->setCount($row['count']);
                 }
                 $func($items);
@@ -240,7 +240,7 @@ class StackStorageAPI implements IStackStorageAPI
             $duplicate = [];
             foreach ($rows as $row) {
                 // アイテムをデコード、エンコードしてNBTがちゃんと同じか検知
-                if ($row["item"] !== json_encode($afterItem = $this->setStoredNbtTag(Item::legacyJsonDeserialize(json_decode($row["item"], true))))) {
+                if ($row["item"] !== ItemService::itemToJson(($afterItem = $this->setStoredNbtTag(ItemService::jsonToItem($row["item"]))))) {
                     $afterItem->setCount($row["count"]);
                     $fuckJson = $row["item"];
                     Server::getInstance()->getLogger()->notice("inaccurate nbt($xuid) : " . $fuckJson);
@@ -271,7 +271,7 @@ class StackStorageAPI implements IStackStorageAPI
             if (!empty($duplicate)) {
                 foreach ($duplicate as $itemJson) {
                     $count = $items[$itemJson];
-                    $itemInst = Item::jsonDeserialize(json_decode($itemJson, true));
+                    $itemInst = ItemService::jsonToItem($itemJson);
                     $itemInst->setCount($count);
                     Server::getInstance()->getLogger()->notice("solution duplicate($xuid) : " . $itemJson);
 

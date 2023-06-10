@@ -6,7 +6,6 @@ use Exception;
 use muqsit\invmenu\InvMenu;
 use muqsit\invmenu\transaction\InvMenuTransaction;
 use muqsit\invmenu\transaction\InvMenuTransactionResult;
-use pocketmine\block\BlockTypeIds;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
 use pocketmine\nbt\LittleEndianNbtSerializer;
@@ -109,9 +108,12 @@ class StackStorageService
         $this->refresh();
     }
 
+    /**
+     * @throws Exception
+     */
     private function onTransaction(InvMenuTransaction $tran): InvMenuTransactionResult
     {
-        if ($tran->getOut()->getTypeId() !== BlockTypeIds::AIR) {
+        if ($tran->getOut()->getTypeId() !== VanillaItems::AIR()->getTypeId()) {
             switch ($tran->getAction()->getSlot()) {
                 case self::BACK:
                     $this->api->backPage($this->xuid);
@@ -122,21 +124,20 @@ class StackStorageService
                     return $tran->discard();
             }
         }
-        if ($tran->getIn()->getTypeId() !== BlockTypeIds::AIR) {
+        if ($tran->getIn()->getTypeId() !== VanillaItems::AIR()->getTypeId()) {
             $this->api->add($this->xuid, $tran->getIn());
         }
-        if ($tran->getOut()->getTypeId() !== BlockTypeIds::AIR) {
-            try {
-                $item = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
-                $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($this->getCache($item, $tran->getAction()->getSlot()));
-                if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
+        if ($tran->getOut()->getTypeId() !== VanillaItems::AIR()->getTypeId()) {
+//            try {
+            $item = StackStorageAPI::$instance->setStoredNbtTag($tran->getOut());
+            $cacheItem = StackStorageAPI::$instance->setStoredNbtTag($this->getCache($item, $tran->getAction()->getSlot()));
+            if ($item->getCount() > $cacheItem->getCount()) throw new Exception("could not reduce items(There is no number)");
 
-                // 原因不明の減らないバグの一時的な対策のためキャッシュしているアイテムを使用
-                StackStorageAPI::$instance->remove($this->xuid, $cacheItem->setCount($item->getCount()));
-            } catch (Exception $e) {
-                StackStoragePlugin::$instance->getLogger()->logException($e);
-                return $tran->discard();
-            }
+            $this->api->remove($this->xuid, $cacheItem->setCount($item->getCount()));
+//            } catch (Exception $e) {
+//                StackStoragePlugin::$instance->getLogger()->logException($e);
+//                return $tran->discard();
+//            }
         }
         return $tran->continue();
     }
