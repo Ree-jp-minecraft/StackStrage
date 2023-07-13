@@ -8,7 +8,7 @@ projects:
     path: ""
     libs:
       - src: poggit/libasynql/libasynql
-        version: 4.1.*
+        version: 4.1.5
       - src: SOF3/await-generator/await-generator
         version: ^3.5
 #      - src: muqsit/InvMenu/InvMenu
