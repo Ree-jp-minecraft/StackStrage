@@ -11,7 +11,7 @@ projects:
         version: 4.1.5
       - src: SOF3/await-generator/await-generator
         version: ^3.5
-#      - src: muqsit/InvMenu/InvMenu
-#        version: ^4.5
-#        branch: "4.0"
+      - src: muqsit/InvMenu/InvMenu
+        version: ^4.5
+        branch: "4.0"
 ...
